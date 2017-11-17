@@ -11,3 +11,4 @@ If using PyCharm, make sure you select this venv in Project > Project Interprete
 ```
 pip install -r requirements.txt
 ```
+
