@@ -18,5 +18,5 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'relay/', include('api.urls')),
+    url(r'relay/', include('relay.urls')),
 ]
