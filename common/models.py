@@ -2,8 +2,8 @@ from django.db import models
 
 
 class Block(models.Model):
-    hashBlock = models.CharField(max_length=256)  # SHA256 length
-    hashPrevBlock = models.CharField(max_length=256)  # SHA256 length
+    hash_block = models.CharField(max_length=256)  # SHA256 length
+    hash_prev_block = models.CharField(max_length=256)  # SHA256 length
     # nonce = models.IntegerField()
 
     class JSONAPIMeta:
@@ -14,7 +14,7 @@ class Transaction(models.Model):
     amount = models.FloatField()
     receiver = models.CharField(max_length=256)
     sender = models.CharField(max_length=256)
-    blockHash = models.CharField(max_length=256)
+    block_hash = models.CharField(max_length=256)
 
     class JSONAPIMeta:
         resource_name = "transaction"

@@ -8,14 +8,19 @@ from common.serializers import BlockSerializer, TransactionSerializer
 logger = logging.getLogger(__name__)
 
 
-class BlockchainView(generics.ListAPIView):
-    model_class = Block
+class BlockchainView(generics.ListCreateAPIView):
     serializer_class = BlockSerializer
     # TODO Build a pagination for part of blockchain request
     pagination_class = None
 
     def get_queryset(self):
         return Block.objects.all()
+
+    # def create(self, request, *args, **kwargs):
+    #     print(request.data)
+    #    serializer = self.get_serializer(data=request.data)
+    #    print(serializer.is_valid())
+    #    return super(generics.ListCreateAPIView, self).create(request, args, kwargs)
 
 
 class BlockView:
