@@ -25,6 +25,7 @@ class BlockView:
 class TransactionView(generics.ListAPIView):
     model_class = Transaction
     serializer_class = TransactionSerializer
+    pagination_class = None
 
     def get_queryset(self):
             return Transaction.objects.all()
