@@ -1,17 +1,14 @@
 import logging
 
-from django.contrib.auth.models import AnonymousUser
 from rest_framework import generics
-from rest_framework.exceptions import NotAuthenticated
-from rest_framework.permissions import IsAuthenticated
 
-from common.models import Block
-from common.serializers import BlockSerializer
+from common.models import Block, Transaction
+from common.serializers import BlockSerializer, TransactionSerializer
 
 logger = logging.getLogger(__name__)
 
 
-class BlockCollection(generics.ListAPIView):
+class BlockchainView(generics.ListAPIView):
     model_class = Block
     serializer_class = BlockSerializer
     # TODO Build a pagination for part of blockchain request
@@ -19,3 +16,15 @@ class BlockCollection(generics.ListAPIView):
 
     def get_queryset(self):
         return Block.objects.all()
+
+
+class BlockView:
+    pass
+
+
+class TransactionView(generics.ListAPIView):
+    model_class = Transaction
+    serializer_class = TransactionSerializer
+
+    def get_queryset(self):
+            return Transaction.objects.all()
