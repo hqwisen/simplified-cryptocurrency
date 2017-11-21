@@ -4,9 +4,18 @@ from rest_framework.utils.serializer_helpers import ReturnDict
 from relay.models import Block, Transaction
 
 
+
+class BlockValidator(object):
+    def __init__(self):
+        pass
+
+    def __call__(self, value):
+        return "Validation"
+
 class BlockSerializer(ModelSerializer):
     class Meta:
         model = Block
+        validators = BlockValidator()
         fields = '__all__'
 
     @property

@@ -4,26 +4,16 @@ from django.db import models
 
 
 class Block(models.Model):
-    header = models.CharField(primary_key=True, max_length=256)  # SHA256 length
-    nonce = models.IntegerField()
-
-    class JSONAPIMeta:
-        resource_name = "block"
-
-    @classmethod
-    def create(cls, header, nonce):
-        block = cls(header=header, nonce=nonce)
-        block.transactions = [Transaction(txid="TXID")]
-        return block
+    header = str()
+    nonce = str()
 
 
-class Transaction(models.Model):
-    txid = models.CharField(primary_key=True, max_length=256) # SHA256 length
-    amount = models.FloatField()
-    receiver = models.CharField(max_length=256)
-    sender = models.CharField(max_length=256)
-    block_hash = models.CharField(max_length=256)
-    timestamp = models.CharField(max_length=256)
+class Transaction:
 
-    class JSONAPIMeta:
-        resource_name = "transaction"
+    def __init__(self):
+        txid = str()
+        amount = 0
+        receiver = str()
+        sender = str()
+        block_hash = str()
+        timestamp = str()

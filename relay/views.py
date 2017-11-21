@@ -1,15 +1,19 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from relay.models import Block
-from relay.serializers import BlockSerializer
+from relay.relay import Block
 
 
 class BlockchainView(APIView):
 
     def get(self, request):
-        block = Block.create("THIS IS A HEADER", 100)
-        return Response(BlockSerializer(block).data)
+        return Response("From GET")
 
     def post(self, request):
-        return Response("Hello this is a response from POST")
+        print(request.data)
+        print(request.data.__class__)
+        block = Block.parse(request.data)
+        print(block.transactions)
+        data = Block.serialize(block)
+        # print(serializer.is_valid())
+        return Response({"title": "Hello this is a response from POST", "data": data})
