@@ -41,8 +41,6 @@ INSTALLED_APPS = [
     'common.apps.CommonConfig',
     'relay.apps.RelayConfig',
     'master.apps.MasterConfig',
-    'miner.apps.MinerConfig',
-    'wallet.apps.WalletConfig'
 ]
 
 MIDDLEWARE = [
