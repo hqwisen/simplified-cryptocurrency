@@ -1,6 +1,8 @@
 import logging
 
 from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from common.models import Block, Transaction
 from common.serializers import BlockSerializer, TransactionSerializer
@@ -23,9 +25,14 @@ class BlockchainView(generics.ListCreateAPIView):
     #    return super(generics.ListCreateAPIView, self).create(request, args, kwargs)
 
 
-class BlockView:
-    pass
 
+class RelayView(APIView):
+
+    def get(self, request):
+        return Response("Hello from GET")
+
+    def post(self, request):
+        return Response("Hello from POST")
 
 class TransactionView(generics.ListAPIView):
     model_class = Transaction
