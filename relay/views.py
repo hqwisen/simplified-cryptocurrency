@@ -1,42 +1,15 @@
-import logging
-
-from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from common.models import Block, Transaction
-from common.serializers import BlockSerializer, TransactionSerializer
-
-logger = logging.getLogger(__name__)
+from relay.models import Block
+from relay.serializers import BlockSerializer
 
 
-
-
-class TransactionView(APIView):
-
-    def post(self, request):
-        # transaction = TransactionSerializer(request.data)
-        return Response("Transaction POST")
-
+class BlockchainView(APIView):
 
     def get(self, request):
-        # transaction = TransactionSerializer(request.data)
-        return "Transaction GET"
-
-            #Relay.server.add_transaction(transaction)
-
-class RelayView(APIView):
-
-    def get(self, request):
-        return Response("Hello from GET")
+        block = Block.create("THIS IS A HEADER", 100)
+        return Response(BlockSerializer(block).data)
 
     def post(self, request):
-        return Response("Hello from POST")
-
-# class TransactionView(generics.ListAPIView):
- #   model_class = Transaction
-  #  serializer_class = TransactionSerializer
-   # pagination_class = None
-
-    #def get_queryset(self):
-#       return Transaction.objects.all()
+        return Response("Hello this is a response from POST")
