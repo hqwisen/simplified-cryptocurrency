@@ -1,3 +1,32 @@
+class Blockchain:
+
+    @staticmethod
+    def parse(data):
+        blockchain = Blockchain
+        try:
+            for block in data['blocks']:
+                blockchain.add_block(Block.parse(block))
+        except KeyError as e:
+            raise Exception("Error while parsin %s" % (e))
+
+        return blockchain
+
+
+    @staticmethod
+    def serialize(blockchain):
+        data = dict()
+        blocks = blockchain.blocks
+        data['blocks'] = []
+        for block in blocks:
+            data['blocks'].append(Block.serialize(block))
+        return data
+
+    def __init__(self):
+        self.blocks = []
+
+    def add_block(self,block):
+        self.blocks.append(block)
+
 class Block:
 
     @staticmethod
@@ -14,11 +43,21 @@ class Block:
 
     @staticmethod
     def serialize(block):
-        data = block.__dict__
+        data = dict()
+        data['header'] = block.header
+        data['nonce'] = block.nonce
         transactions = block.transactions
         data['transactions'] = []
         for transaction in transactions:
-            data['transactions'].append(transaction.__dict__)
+            transactionDict = dict()
+            transactionDict['txid'] = transaction.txid
+            transactionDict['amount'] = transaction.amount
+            transactionDict['receiver'] = transaction.receiver
+            transactionDict['sender'] = transaction.sender
+            transactionDict['block_hash'] = transaction.block_hash
+            transactionDict['timestamp'] = transaction.timestamp
+
+            data['transactions'].append(transactionDict)
         return data
 
 
