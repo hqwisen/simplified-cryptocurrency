@@ -172,7 +172,7 @@ LOGGING = {
 
 # JSON API Rest Framework settings
 # http://django-rest-framework-json-api.readthedocs.io/en/stable/usage.html#configuration
-
+"""
 REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'EXCEPTION_HANDLER': 'rest_framework_json_api.exceptions.exception_handler',
@@ -193,3 +193,4 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     )
 }
+"""
