@@ -7,5 +7,4 @@ class RelayConfig(AppConfig):
     name = 'relay'
 
     def ready(self):
-        print("Initializing bro")
         Relay.init_relay()
