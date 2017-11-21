@@ -1,3 +1,7 @@
+### SimplCrypto ###
+
+# Ignoring Django migrations
+*/migrations/
 ### Python ###
 
 # Byte-compiled / optimized / DLL files
