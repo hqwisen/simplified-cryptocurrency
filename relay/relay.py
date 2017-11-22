@@ -4,6 +4,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+class RelayError(Exception):
+    pass
+
 class Relay:
 
     blockchain = Blockchain()
@@ -18,7 +21,16 @@ class Relay:
         return cls.blockchain.part_of(start, end)
 
     @classmethod
+    def transaction_exists(cls, transaction):
+        for tr in cls.transactions:
+            if tr.txid == transaction.txid:
+                return True
+        return False
+
+    @classmethod
     def add_transaction(cls, transaction):
+        if cls.transaction_exists(transaction):
+            raise RelayError("Transaction '%s' is already added." % transaction.txid)
         cls.transactions.append(transaction)
 
     @classmethod
