@@ -61,14 +61,7 @@ class Block:
         transactions = block.transactions
         data['transactions'] = []
         for transaction in transactions:
-            transactionDict = dict()
-            transactionDict['txid'] = transaction.txid
-            transactionDict['amount'] = transaction.amount
-            transactionDict['receiver'] = transaction.receiver
-            transactionDict['sender'] = transaction.sender
-            transactionDict['block_hash'] = transaction.block_hash
-            transactionDict['timestamp'] = transaction.timestamp
-
+            transactionDict = Transaction.serialize(transaction)
             data['transactions'].append(transactionDict)
         return data
 
@@ -93,6 +86,17 @@ class Transaction:
         except KeyError as e:
             raise Exception("Error while parsing %s" % (e))
         return transaction
+
+    @staticmethod
+    def serialize(transaction):
+        transactionDict = dict()
+        transactionDict['txid'] = transaction.txid
+        transactionDict['amount'] = transaction.amount
+        transactionDict['receiver'] = transaction.receiver
+        transactionDict['sender'] = transaction.sender
+        transactionDict['block_hash'] = transaction.block_hash
+        transactionDict['timestamp'] = transaction.timestamp
+        return transactionDict
 
     def __init__(self):
         self.txid = str()

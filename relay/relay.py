@@ -4,6 +4,7 @@ from common.models import Blockchain
 class Relay:
 
     blockchain = Blockchain()
+    transactions = []
 
     @staticmethod
     def add_block(block):
@@ -13,6 +14,16 @@ class Relay:
     def part_of(start, end):
         return Relay.blockchain.part_of(start, end)
 
+    @staticmethod
+    def add_transaction(transaction):
+        Relay.transactions.append(transaction)
+
+    @staticmethod
+    def get_transaction(exclude):
+        for transaction in Relay.transactions:
+            if transaction.txid not in exclude:
+                return transaction
+        return None
 
     # @classmethod
     # def server(cls):
