@@ -61,9 +61,9 @@ class Block:
         return data
 
 
-    def __init__(self):
-        self.header = str()
-        self.nonce = str()
+    def __init__(self, header="", nonce=""):
+        self.header = header
+        self.nonce = nonce
         self.transactions = list()
 
     def add_transaction(self, transaction):

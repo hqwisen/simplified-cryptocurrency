@@ -68,3 +68,9 @@ class BlockchainView(APIView):
         isValid = True
 
         return isValid
+
+
+class BlockView(APIView):
+
+    def post(self, request):
+        return Response("OK", status=201)
