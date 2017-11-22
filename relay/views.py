@@ -23,8 +23,7 @@ class BlockchainView(APIView):
     def post(self, request):
         data = request.data
         block = Block.parse(data)
-        Relay.blockchain.add_block(block)
-        # TODO remove transaction that are in new block
+        Relay.update_blockchain(block)
         return Response(status=201)
 
 
@@ -36,7 +35,7 @@ class BlockView(APIView):
                                   "POST", body=str(request.data))
         print(resp)
         print(content)
-        return Response("Successfully received", status=200)
+        return Response("Successfully received", status=201)
 
 
 class TransactionView(APIView):

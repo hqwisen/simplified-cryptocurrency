@@ -162,7 +162,7 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        'api': {
+        'relay': {
             'handlers': ['console'],
             'level': 'DEBUG',
             'propagate': True,

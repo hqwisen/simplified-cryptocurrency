@@ -1,26 +1,29 @@
 from common.models import Blockchain
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Relay:
 
     blockchain = Blockchain()
     transactions = []
 
-    @staticmethod
-    def add_block(block):
-        Relay.blockchain.add_block(block)
+    @classmethod
+    def add_block(cls, block):
+        cls.blockchain.add_block(block)
 
-    @staticmethod
-    def part_of(start, end):
-        return Relay.blockchain.part_of(start, end)
+    @classmethod
+    def part_of(cls, start, end):
+        return cls.blockchain.part_of(start, end)
 
-    @staticmethod
-    def add_transaction(transaction):
-        Relay.transactions.append(transaction)
+    @classmethod
+    def add_transaction(cls, transaction):
+        cls.transactions.append(transaction)
 
-    @staticmethod
-    def get_transaction(exclude):
-        for transaction in Relay.transactions:
+    @classmethod
+    def get_transaction(cls, exclude):
+        for transaction in cls.transactions:
             if transaction.txid not in exclude:
                 return transaction
         return None
@@ -40,3 +43,21 @@ class Relay:
     #
     # def add_block(self, block):
     #     return self.blockchain.add_block(block)
+
+    @classmethod
+    def update_blockchain(cls, block):
+        cls.blockchain.add_block(block)
+        for transaction in block.get_transactions():
+            logger.debug("Start removal of %s" % transaction.txid)
+            cls.remove_transaction(transaction)
+
+    @classmethod
+    def remove_transaction(cls, transaction):
+        i = 0
+        while i < len(cls.transactions):
+            if transaction.txid == cls.transactions[i].txid:
+                logger.debug("Removing transaction %s" % cls.transactions[i].txid)
+                del cls.transactions[i]
+                i-=1
+            i+=1
+

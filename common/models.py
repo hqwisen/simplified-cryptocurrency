@@ -71,6 +71,9 @@ class Block:
         self.nonce = nonce
         self.transactions = list()
 
+    def get_transactions(self):
+        return self.transactions
+
     def add_transaction(self, transaction):
         self.transactions.append(transaction)
 
