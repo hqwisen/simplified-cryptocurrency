@@ -3,15 +3,29 @@ from common.models import Blockchain
 
 class Relay:
 
-    _server = None
+    blockchain = Blockchain()
 
-    @classmethod
-    def server(cls):
+    @staticmethod
+    def add_block(block):
+        Relay.blockchain.add_block(block)
 
-        if cls._server is None:
-            _server = Relay()
-        return _server
+    @staticmethod
+    def part_of(start, end):
+        return Relay.blockchain.part_of(start, end)
 
-    def __init__(self):
-        self.transactions = []
-        self.blockchain = Blockchain()
+
+    # @classmethod
+    # def server(cls):
+    #     if cls._server is None:
+    #         _server = Relay()
+    #     return _server
+    # @staticmethod
+    # def add_block(block):
+    #     Relay._server.add_block(block)
+    #
+    # def __init__(self):
+    #     self.transactions = []
+    #     self.blockchain = Blockchain()
+    #
+    # def add_block(self, block):
+    #     return self.blockchain.add_block(block)

@@ -27,6 +27,18 @@ class Blockchain:
     def add_block(self,block):
         self.blocks.append(block)
 
+    def part_of(self, start, end):
+        blocks = self.blocks[start:end]
+        blockchain = Blockchain()
+        blockchain.blocks = blocks
+        return blockchain
+
+    def __str__(self):
+        return str(self.blocks)
+
+    def __repr__(self):
+        return str(self)
+
 class Block:
 
     @staticmethod
