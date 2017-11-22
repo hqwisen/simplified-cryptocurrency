@@ -7,7 +7,7 @@ from common.models import Block
 class BlockchainView(APIView):
 
     def get(self, request):
-        return Response("From GET")
+        return Response({"Hello": "Comment caa"})
 
     def post(self, request):
         block = Block.parse(request.data)

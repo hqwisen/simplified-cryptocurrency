@@ -1,16 +1,17 @@
+from common.models import Blockchain
+
+
 class Relay:
 
-    server = None
+    _server = None
 
-    @staticmethod
-    def init_relay():
-        """
-        Initialize the relay serverappapp
-        :return: the created Relay instance
-        """
-        print("Init relay")
-        Relay.server = Relay()
-        return Relay.server
+    @classmethod
+    def server(cls):
+
+        if cls._server is None:
+            _server = Relay()
+        return _server
 
     def __init__(self):
         self.transactions = []
+        self.blockchain = Blockchain()
