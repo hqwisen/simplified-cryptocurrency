@@ -1,5 +1,8 @@
 ### SimplCrypto ###
 
+# Ignoring wallet's addresses dir
+wallet/addresses/
+
 # Ignoring Django migrations
 */migrations/
 ### Python ###
