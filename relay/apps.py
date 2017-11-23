@@ -5,6 +5,4 @@ from relay.relay import Relay
 
 class RelayConfig(AppConfig):
     name = 'relay'
-
-    def ready(self):
-        Relay.init_relay()
+    master_ip = "localhost:8000"
