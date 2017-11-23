@@ -100,7 +100,7 @@ class Transaction:
         transactionDict['receiver'] = transaction.receiver
         transactionDict['sender'] = transaction.sender
         transactionDict['amount'] = transaction.amount
-        transactionDict['sender_pk'] = transaction.sender_pk
+        transactionDict['sender_public_key'] = transaction.sender_public_key
         transactionDict['signature'] = transaction.signature
         transactionDict['timestamp'] = transaction.timestamp
         return transactionDict
@@ -109,7 +109,7 @@ class Transaction:
         self.receiver = str()
         self.sender = str()
         self.amount = 0
-        self.sender_pk = str()
+        self.sender_public_key = str()
         self.signature = str()
         self.timestamp = str()
 
