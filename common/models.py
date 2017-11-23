@@ -1,3 +1,8 @@
+
+class ParseException(Exception):
+    pass
+
+
 class Blockchain:
 
     @staticmethod
@@ -6,9 +11,8 @@ class Blockchain:
         try:
             for block in data['blocks']:
                 blockchain.add_block(Block.parse(block))
-        except KeyError as e:
-            raise Exception("Error while parsin %s" % (e))
-
+        except (KeyError, ParseException) as e:
+            raise ParseException("Error while parsing blockchain %s" % (e))
         return blockchain
 
 
@@ -49,8 +53,8 @@ class Block:
             block.nonce = data['nonce']
             for transaction in data['transactions']:
                 block.add_transaction(Transaction.parse(transaction))
-        except KeyError as e:
-            raise Exception("Error while parsing %s" % (e))
+        except (KeyError, ParseException) as e:
+            raise ParseException("Error while parsing block %s" % (e))
         return block
 
     @staticmethod
@@ -87,7 +91,7 @@ class Transaction:
             for attr in attrs:
                 transaction.__dict__[attr] = data[attr]
         except KeyError as e:
-            raise Exception("Error while parsing %s" % (e))
+            raise ParseException("Error while parsing transaction %s" % (e))
         return transaction
 
     @staticmethod
