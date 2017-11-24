@@ -97,18 +97,21 @@ class Transaction:
     @staticmethod
     def serialize(transaction):
         transactionDict = dict()
-        transactionDict['txid'] = transaction.txid
-        transactionDict['amount'] = transaction.amount
         transactionDict['receiver'] = transaction.receiver
         transactionDict['sender'] = transaction.sender
-        transactionDict['block_hash'] = transaction.block_hash
+        transactionDict['amount'] = transaction.amount
+        transactionDict['hash'] = transaction.hash
+        transactionDict['sender_public_key'] = transaction.sender_public_key
+        transactionDict['signature'] = transaction.signature
         transactionDict['timestamp'] = transaction.timestamp
         return transactionDict
 
     def __init__(self):
-        self.txid = str()
-        self.amount = 0
         self.receiver = str()
         self.sender = str()
-        self.block_hash = str()
+        self.amount = 0
+        self.hash = str()
+        self.sender_public_key = str()
+        self.signature = str()
         self.timestamp = str()
+
