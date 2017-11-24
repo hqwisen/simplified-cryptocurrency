@@ -1,10 +1,13 @@
+import os
+import sys
+sys.path.append(os.path.dirname(os.getcwd())) # Since wallet isn't a Django app, project dir must be added to import models
+
+from datetime import datetime
 from Crypto.PublicKey import DSA
 from Crypto.Cipher import AES
 from Crypto.Signature import DSS
 from Crypto.Hash import RIPEMD160, SHA256
-import os
-import sys
-sys.path.append(os.path.dirname(os.getcwd())) # Since wallet isn't a Django app, project dir must be added to import models
+
 from common.models import Transaction
 
 P_SIZE = 2048
@@ -79,7 +82,11 @@ class Wallet:
         new_transaction.receiver = destination_address
         new_transaction.amount = amount
         new_transaction.sender = self.current_address.raw
-        new_transaction.hash = SHA256.new(bytes(new_transaction.receiver, ENCODING) + bytes(new_transaction.sender, ENCODING) + bytes(new_transaction.amount, ENCODING))
+        new_transaction.timestamp = datetime.now().timestamp()
+        new_transaction.hash = SHA256.new(bytes(new_transaction.receiver, ENCODING) +
+                                            bytes(new_transaction.sender, ENCODING) +
+                                            bytes(new_transaction.amount, ENCODING) +
+                                            bytes(str(new_transaction.timestamp), ENCODING))
         new_transaction.sender_public_key = self.current_address.public_key
         self.sign_transaction(new_transaction)
         return new_transaction

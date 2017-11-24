@@ -27,7 +27,7 @@ def main():
 
     # Transaction test
     transaction = wallet.create_transaction(ad.raw, 20)
-    print('Receiver: {0} ; Amount: {1} ; Signature: {2}'.format(transaction.receiver, transaction.amount, transaction.signature))
+    print('Receiver: {0}\n Amount: {1}\n Signature: {2}\n Timestamp: {3}'.format(transaction.receiver, transaction.amount, transaction.signature, transaction.timestamp))
 
     # Signature verification example (and therefore test)
     verify_signature(transaction)
