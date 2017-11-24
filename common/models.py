@@ -100,6 +100,7 @@ class Transaction:
         transactionDict['receiver'] = transaction.receiver
         transactionDict['sender'] = transaction.sender
         transactionDict['amount'] = transaction.amount
+        transactionDict['hash'] = transaction.hash
         transactionDict['sender_public_key'] = transaction.sender_public_key
         transactionDict['signature'] = transaction.signature
         transactionDict['timestamp'] = transaction.timestamp
@@ -109,6 +110,7 @@ class Transaction:
         self.receiver = str()
         self.sender = str()
         self.amount = 0
+        self.hash = str()
         self.sender_public_key = str()
         self.signature = str()
         self.timestamp = str()
