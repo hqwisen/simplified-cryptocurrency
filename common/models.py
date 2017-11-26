@@ -25,16 +25,15 @@ class Blockchain:
             data['blocks'].append(Block.serialize(block))
         return data
 
-    def __init__(self):
-        self.blocks = []
+    def __init__(self, blocks = []):
+        self.blocks = blocks
 
     def add_block(self,block):
         self.blocks.append(block)
 
     def part_of(self, start, end):
         blocks = self.blocks[start:end]
-        blockchain = Blockchain()
-        blockchain.blocks = blocks
+        blockchain = Blockchain(blocks)
         return blockchain
 
     def __str__(self):

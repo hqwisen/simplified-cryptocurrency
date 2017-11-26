@@ -31,6 +31,13 @@ class BlockView(APIView):
 class TransactionView(APIView):
 
     def get(self, request):
+
+
+        server = Relay.server()
+
+
+
+
         exclude =  request.data['exclude_hash'] if 'exclude_hash' in request.data else []
         if 'exclude_hash' not in request.data:
             logger.info("'exclude_hash' not in request")
