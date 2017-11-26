@@ -14,14 +14,29 @@ logger = logging.getLogger(__name__)
 class BlockchainGetView(APIView):
 
     def get(self, request):
-        blockchain = Relay.blockchain
+
         try:
             start, end = int(request.query_params['start']), int(request.query_params['end'])
-            blockchain = Relay.part_of(start, end)
+            blockchain = server.part_of(start, end)
         except (KeyError, ValueError) as e:
             logger.info("Error while parsing params of GET blockchain; return all blockchain")
         data = Blockchain.serialize(blockchain)
         return Response(data, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def post(self, request):
         try:

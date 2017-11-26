@@ -11,6 +11,7 @@ from common.views import BlockchainGetView
 
 USERNAME = "RelayNode" #The only user that can request something from the Master Node
 #The password for this user is "RelayPwd123"
+
 class BlockchainView(BlockchainGetView):
 
 
@@ -19,9 +20,11 @@ class BlockchainView(BlockchainGetView):
         Manage the GET request and will return the current state of the blockchain
         if the one requesting it is a Relay Node (see user and password above)
         """
+        server = Master()
         if is_auth(request.user):
-            data = Blockchain.serialize(Master.master.blockchain)
-            response = Response(data, status = status.HTTP_200_OK)
+            super(BlockchainView, self).get(request)
+        #     data = Blockchain.serialize(Master.master.blockchain)
+        #     response = Response(data, status = status.HTTP_200_OK)
         else:
             response = Response(status = status.HTTP_403_FORBIDDEN)
 

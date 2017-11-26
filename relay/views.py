@@ -31,17 +31,11 @@ class BlockView(APIView):
 class TransactionView(APIView):
 
     def get(self, request):
-
-
-        server = Relay.server()
-
-
-
-
+        server = Relay()
         exclude =  request.data['exclude_hash'] if 'exclude_hash' in request.data else []
         if 'exclude_hash' not in request.data:
             logger.info("'exclude_hash' not in request")
-        transaction = Relay.get_transaction(exclude)
+        transaction = server.get_transaction(exclude)
         if transaction != None:
             return Response(Transaction.serialize(transaction),
                             status=status.HTTP_200_OK)
@@ -50,9 +44,10 @@ class TransactionView(APIView):
                             status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
+        server = Relay()
         try:
             transaction = Transaction.parse(request.data)
-            Relay.add_transaction(transaction)
+            server.add_transaction(transaction)
             return Response(status=status.HTTP_201_CREATED)
         except (RelayError, ParseException) as e:
             return Response(str(e), status=status.HTTP_406_NOT_ACCEPTABLE)
