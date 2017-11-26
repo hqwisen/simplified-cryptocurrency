@@ -1,12 +1,14 @@
+
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from master.master import Master
 from common.models import Blockchain, Block, Transaction
+from common.views import BlockchainGetView
 
 
-class BlockchainView(APIView):
+class BlockchainView(BlockchainGetView):
 
     def get(self, request):
         """
@@ -49,7 +51,8 @@ class BlockchainView(APIView):
             if isValid:
                 Master.master.add_block_in_blockchain(block)
                 data = Blockchain.serialize(Master.master.blockchain)
-                response = Response({"Title":"Well played, your block has been added !", "data": data}, status = status.HTTP_201_CREATED)
+                response = Response({"Title":"Well played, your block has been added !", "data": data},
+                                    status = status.HTTP_201_CREATED)
                 # TODO Remove data from the answer, we just did it to check the evolution of the blockchain
             else:
                 response = Response({"Title": "There is a problem"},status = status.HTTP_406_NOT_ACCEPTABLE)

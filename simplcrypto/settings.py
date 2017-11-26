@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'common.apps.CommonConfig',
     'relay.apps.RelayConfig',
-    'master.apps.MasterConfig',
+    'master.apps.MasterConfig'
 ]
 
 MIDDLEWARE = [

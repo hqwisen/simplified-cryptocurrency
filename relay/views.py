@@ -7,30 +7,15 @@ from common.models import Blockchain, Block, Transaction, ParseException
 from relay.apps import RelayConfig
 from relay.relay import Relay, RelayError
 
+from common.views import BlockchainGetView
+
 import logging
 
 logger = logging.getLogger(__name__)
 
 
-class BlockchainView(APIView):
-
-    def get(self, request):
-        blockchain = Relay.blockchain
-        try:
-            start, end = int(request.query_params['start']), int(request.query_params['end'])
-            blockchain = Relay.part_of(start, end)
-        except (KeyError, ValueError) as e:
-            logger.info("Error while parsing params of GET blockchain; return all blockchain")
-        data = Blockchain.serialize(blockchain)
-        return Response(data, status=httpstatus.HTTP_200_OK)
-
-    def post(self, request):
-        try:
-            block = Block.parse(request.data)
-            Relay.update_blockchain(block)
-            return Response(status=httpstatus.HTTP_201_CREATED)
-        except ParseException as e:
-            return Response(str(e), status=httpstatus.HTTP_406_NOT_ACCEPTABLE)
+class BlockchainView(BlockchainGetView):
+    pass
 
 
 class BlockView(APIView):
