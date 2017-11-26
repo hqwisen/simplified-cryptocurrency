@@ -23,20 +23,20 @@ class Relay:
     @classmethod
     def transaction_exists(cls, transaction):
         for tr in cls.transactions:
-            if tr.txid == transaction.txid:
+            if tr.hash == transaction.hash:
                 return True
         return False
 
     @classmethod
     def add_transaction(cls, transaction):
         if cls.transaction_exists(transaction):
-            raise RelayError("Transaction '%s' is already added." % transaction.txid)
+            raise RelayError("Transaction '%s' is already added." % transaction.hash)
         cls.transactions.append(transaction)
 
     @classmethod
     def get_transaction(cls, exclude):
         for transaction in cls.transactions:
-            if transaction.txid not in exclude:
+            if transaction.hash not in exclude:
                 return transaction
         return None
 
@@ -60,15 +60,15 @@ class Relay:
     def update_blockchain(cls, block):
         cls.blockchain.add_block(block)
         for transaction in block.get_transactions():
-            logger.debug("Start removal of %s" % transaction.txid)
+            logger.debug("Start removal of %s" % transaction.hash)
             cls.remove_transaction(transaction)
 
     @classmethod
     def remove_transaction(cls, transaction):
         i = 0
         while i < len(cls.transactions):
-            if transaction.txid == cls.transactions[i].txid:
-                logger.debug("Removing transaction %s" % cls.transactions[i].txid)
+            if transaction.hash == cls.transactions[i].hash:
+                logger.debug("Removing transaction %s" % cls.transactions[i].hash)
                 del cls.transactions[i]
                 i-=1
             i+=1

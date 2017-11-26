@@ -81,6 +81,13 @@ class Block:
     def add_transaction(self, transaction):
         self.transactions.append(transaction)
 
+    def get_string_of_transactions(self):
+        s = ""
+        for transaction in self.transactions:
+            s += transaction.toString()
+        return s
+
+
 class Transaction:
 
     @staticmethod
@@ -114,4 +121,8 @@ class Transaction:
         self.sender_public_key = str()
         self.signature = str()
         self.timestamp = str()
+
+    def to_string(self):
+        return self.receiver + self.sender + str(self.amount) + self.hash + \
+               self.sender_public_key + self.signature + self.timestamp
 
