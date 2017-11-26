@@ -87,7 +87,6 @@ class Block:
             s += transaction.toString()
         return s
 
-
 class Transaction:
 
     @staticmethod
@@ -125,4 +124,3 @@ class Transaction:
     def to_string(self):
         return self.receiver + self.sender + str(self.amount) + self.hash + \
                self.sender_public_key + self.signature + self.timestamp
-
