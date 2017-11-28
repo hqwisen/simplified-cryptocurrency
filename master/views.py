@@ -50,13 +50,18 @@ class BlockView(APIView):
         try:
             if is_auth(request.user):
                 server = self.get_server()
-                block = Block.parse(request.data)
+                # request contains the block, and the address of the miner
+                block_data = request.data['block']
+                block = Block.parse(block_data)
                 bad_transactions = server.update_blockchain(block)
                 if len(bad_transactions) == 0: # block is valid
                     response = Response({"Title": "Well played, your block has been added !"},
                                         status=status.HTTP_201_CREATED)
                     for relay_ip in settings.RELAY_IP:
-                        client.post(relay_ip, 'block', request.data)
+                        client.post(relay_ip, 'block', block_data)
+                # TODO add reward to miner using request.data['miner_address']
+                # client.post(relay_ip, 'transactions', transaction)
+
                 else:
                     data = {'bad_transactions': []}
                     for transaction in bad_transactions:
