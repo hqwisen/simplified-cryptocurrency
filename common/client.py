@@ -13,3 +13,8 @@ def post(server, url, data):
     c = Client()
     response = c.get(server + '/' + url, data)
     return response
+
+def delete(server, url, data):
+    c = Client()
+    response = c.delete(server + '/' + url, data)
+    return response

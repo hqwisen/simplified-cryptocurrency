@@ -1,9 +1,11 @@
+from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 
+from common import client
 from master.master import Master
 from common.models import Blockchain, Block, Transaction, ParseException
 from common.views import BlockchainGetView
@@ -34,6 +36,7 @@ class BlockchainView(BlockchainGetView):
 
 
 class BlockView(APIView):
+
     def post(self, request):
         """
         Manage the POST request, the Master Node will receive a block and it
@@ -52,20 +55,23 @@ class BlockView(APIView):
                 if len(bad_transactions) == 0: # block is valid
                     response = Response({"Title": "Well played, your block has been added !"},
                                         status=status.HTTP_201_CREATED)
-                    # TODO envoyer block a tout les relays
+                    for relay_ip in settings.RELAY_IP:
+                        client.post(relay_ip, 'block', request.data)
                 else:
                     data = {'bad_transactions': []}
                     for transaction in bad_transactions:
                         data['bad_transactions'].append(Transaction.serialize(transaction))
                     response = Response({"errors": "Houston, there is a problem.", "data": data},
                                         status=status.HTTP_406_NOT_ACCEPTABLE)
+                    # Need to send to all relays, since the miner can request
+                    # transactions from any relay
+                    for relay_ip in settings.RELAY_IP:
+                        client.delete(relay_ip, 'transactions', data)
             else:
                 response = Response(status=status.HTTP_403_FORBIDDEN)
 
-
-        except ParseException as e:  # To change later since we're catching all exception and this might be a problem
+        except ParseException as e:
             response = Response({"Title": "There is a problem"}, status=status.HTTP_406_NOT_ACCEPTABLE)
-
         return response
 
 

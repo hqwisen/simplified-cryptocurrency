@@ -40,11 +40,8 @@ class BlockView(APIView):
 
     def post(self, request):
         response = client.post(settings.MASTER_IP, 'blockchain', request.data)
-        if response.status == status.HTTP_406_NOT_ACCEPTABLE:
-            server = Relay()
-            for transaction in response.data['bad_transactions']:
-                server.remove_transaction(transaction)
-        return Response("Successfully received", status=status.HTTP_201_CREATED)
+        # TODO should we send an anwser base on master node response ?
+        return Response("Successfully received", status=status.HTTP_200_OK)
 
 
 class TransactionView(APIView):
@@ -71,3 +68,7 @@ class TransactionView(APIView):
         except (RelayError, ParseException) as e:
             return Response(str(e), status=status.HTTP_406_NOT_ACCEPTABLE)
 
+    def delete(self, request):
+        server = Relay()
+        for transaction in request.data['bad_transactions']:
+            server.remove_transaction(transaction)
