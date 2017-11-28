@@ -12,6 +12,9 @@ class Server:
     def part_of(self, start, end):
         return self.blockchain.part_of(start, end)
 
+    def get_blockchain(self):
+        return self.blockchain
+
     def update_blockchain(self, block):
         """
         Update the blockchain by adding the new block
@@ -26,21 +29,10 @@ class Server:
 
     def verify_block(self, block):
         """
-        Verify if the block data correspond to the current state of the blockchain
-
-        lastBlock = self.blockchain.getLastBlock()
-        previousHash = lastBlock.header
-        nonce = block.nonce
-        transactionsString = block.getStringOfTransactions()
-
-        currentHash = hashlib.sha256(str.encode(previousHash + transactionsString + str(nonce)))
-        if currentHash == block.header:
-            pass
-        else:
-            isValid = False
+        Verify if the block data correspond to the current state of the blockchain.
+        Verify that the hash of the new block match the current blockchain state.
+        It does NOT verify the transaction of the block
         """
-        # Waiting for Miner's team part
-        # For test sake, let's say it's alrdy checked
         is_valid = True
-        # TODO to implement
+        # TODO implement verify hash
         return is_valid

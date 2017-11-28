@@ -6,6 +6,15 @@ class Master:
         def __init__(self):
             super(Master, self).__init__()
 
+        def update_blockchain(self, block):
+            hash_verify = self.verify_block(block)
+            results = self.verify_transactions(block)
+            if hash_verify and len(results) == 0:
+                self.add_block(block)
+                return []
+            else:
+                return results
+
     instance = None
 
     def __init__(self):

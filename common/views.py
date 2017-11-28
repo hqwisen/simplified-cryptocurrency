@@ -14,36 +14,19 @@ logger = logging.getLogger(__name__)
 class BlockchainGetView(APIView):
 
     def get(self, request):
-
+        server = self.get_server()
+        if server is None:
+            raise Exception("Cannot instanciate server.")
         try:
             start, end = int(request.query_params['start']), int(request.query_params['end'])
             blockchain = server.part_of(start, end)
         except (KeyError, ValueError) as e:
-            logger.info("Error while parsing params of GET blockchain; return all blockchain")
+            logger.info("No start, end given return full blockchain.")
+            blockchain = server.get_blockchain()
         data = Blockchain.serialize(blockchain)
         return Response(data, status=status.HTTP_200_OK)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    def post(self, request):
-        try:
-            block = Block.parse(request.data)
-            Relay.update_blockchain(block)
-            return Response(status=status.HTTP_201_CREATED)
-        except ParseException as e:
-            return Response(str(e), status=status.HTTP_406_NOT_ACCEPTABLE)
+    def get_server(self):
+        return None
 
 

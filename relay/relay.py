@@ -10,11 +10,11 @@ logger = logging.getLogger(__name__)
 class RelayError(Exception):
     pass
 
-
 class Relay:
+
     class __Relay(Server):
         def __init__(self):
-            super(Relay, self).__init__()
+            super(Relay.__Relay, self).__init__()
             self.transactions = []
 
         def transaction_exists(self, transaction):
@@ -35,11 +35,12 @@ class Relay:
             return None
 
         def update_blockchain(self, block):
-            added = super(Relay, self).update_blockchain(block)
+            added = super(Relay.__Relay, self).update_blockchain(block)
             if added:
                 for transaction in block.get_transactions():
                     logger.debug("Start removal of %s" % transaction.hash)
                     self.remove_transaction(transaction)
+            return added
 
         def remove_transaction(self, transaction):
             i = 0

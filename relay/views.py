@@ -13,9 +13,21 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 class BlockchainView(BlockchainGetView):
-    pass
+
+    def post(self, request):
+        server = self.get_server()
+        try:
+            block = Block.parse(request.data)
+            updated = server.update_blockchain(block)
+            if not updated:
+                request full blockchain
+            return Response(status=status.HTTP_201_CREATED)
+        except ParseException as e:
+            return Response(str(e), status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    def get_server(self):
+        return Relay()
 
 
 class BlockView(APIView):
