@@ -48,6 +48,16 @@ class Blockchain:
     def __len__(self):
         return len(self.blocks)
 
+    def get_balance(self, address):
+        balance = 0
+        for block in self.blocks:
+            for transaction in block.get_transactions():
+                if transaction.get_sender() == address:
+                    balance -= transaction.get_amount()
+                elif transaction.get_receiver() == address:
+                    balance += transaction.get_amount()
+        return balance
+
 class Block:
 
     @staticmethod
@@ -129,3 +139,12 @@ class Transaction:
     def to_string(self):
         return self.receiver + self.sender + str(self.amount) + self.hash + \
                self.sender_public_key + self.signature + self.timestamp
+
+    def get_sender(self):
+        return self.sender
+
+    def get_receiver(self):
+        return self.receiver
+
+    def get_amount(self):
+        return self.amount

@@ -1,4 +1,5 @@
 from common.server import Server
+from common.models import Block, Blockchain
 
 
 class Master:
@@ -7,6 +8,11 @@ class Master:
             super(Master.__Master, self).__init__()
 
         def update_blockchain(self, block):
+            """
+            Add the block from the parameter if it's a valid one,
+            otherwise reject it and return the bad transactions that
+            made it invalid
+            """
             hash_verify = self.verify_block(block)
             results = self.verify_transactions(block)
             if hash_verify and len(results) == 0:
@@ -14,6 +20,26 @@ class Master:
                 return []
             else:
                 return results
+
+        def verify_transactions(block):
+            """
+            Return a list of invalid transactions
+            """
+
+            bad_transactions = []
+
+            for transaction in block.get_transactions():
+                sender = transaction.get_sender()
+                if self.blockchain.get_balance(sender) < transaction.get_amount():
+                    bad_transactions.append(transaction)
+                else:
+                    #TODO Check signature
+                    pass
+            return bad_transactions
+
+
+
+
 
     instance = None
 
