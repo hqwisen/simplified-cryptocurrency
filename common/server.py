@@ -15,17 +15,8 @@ class Server:
     def get_blockchain(self):
         return self.blockchain
 
-    def update_blockchain(self, block):
-        """
-        Update the blockchain by adding the new block
-        if the block cannot be added, it will return false.
-        :param block: the block to add
-        :return: true if block added, false otherwise
-        """
-        is_valid = self.verify_block(block)
-        if is_valid:
-            self.add_block(block)
-        return is_valid
+    def add_blocks(self, blocks):
+        self.blockchain.add_blocks(blocks)
 
     def verify_block(self, block):
         """
@@ -36,3 +27,6 @@ class Server:
         is_valid = True
         # TODO implement verify hash
         return is_valid
+
+    def blockchain_size(self):
+        return len(self.blockchain)

@@ -1,17 +1,19 @@
-import httplib2
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework import status
-
-from common.models import Blockchain, Block, Transaction, ParseException
-from relay.apps import RelayConfig
-from relay.relay import Relay, RelayError
-
-from common.views import BlockchainGetView
-
 import logging
 
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from common import client
+from common.models import Block, Transaction, ParseException, Blockchain
+from common.views import BlockchainGetView
+from relay.relay import Relay, RelayError
+
+
+from django.conf import settings
+
 logger = logging.getLogger(__name__)
+
 
 class BlockchainView(BlockchainGetView):
 
@@ -21,7 +23,11 @@ class BlockchainView(BlockchainGetView):
             block = Block.parse(request.data)
             updated = server.update_blockchain(block)
             if not updated:
-                request full blockchain
+                last_index = server.blockchain_size() - 1
+                response = client.get(settings.MASTER_IP,
+                                      'blockchain?start=%d&end=%d' % (last_index, -1))
+                blockchain = Blockchain.parse(response.data)
+                server.add_blocks(blockchain.get_blocks())
             return Response(status=status.HTTP_201_CREATED)
         except ParseException as e:
             return Response(str(e), status=status.HTTP_406_NOT_ACCEPTABLE)
@@ -33,10 +39,11 @@ class BlockchainView(BlockchainGetView):
 class BlockView(APIView):
 
     def post(self, request):
-        h = httplib2.Http()
-        resp, content = h.request("http://" + RelayConfig.master_ip + "/master/block",
-                                  "POST", body=str(request.data))
-        # TODO The miner should also send his address, to be forwarded to the master for the reward
+        response = client.post(settings.MASTER_IP, 'blockchain', request.data)
+        if response.status == status.HTTP_406_NOT_ACCEPTABLE:
+            server = Relay()
+            for transaction in response.data['bad_transactions']:
+                server.remove_transaction(transaction)
         return Response("Successfully received", status=status.HTTP_201_CREATED)
 
 

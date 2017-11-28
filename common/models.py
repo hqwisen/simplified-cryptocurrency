@@ -36,11 +36,17 @@ class Blockchain:
         blockchain = Blockchain(blocks)
         return blockchain
 
+    def add_blocks(self, blocks):
+        self.blocks.extend(blocks)
+
     def __str__(self):
         return str(self.blocks)
 
     def __repr__(self):
         return str(self)
+
+    def __len__(self):
+        return len(self.blocks)
 
 class Block:
 

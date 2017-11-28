@@ -54,9 +54,9 @@ class BlockView(APIView):
                                         status=status.HTTP_201_CREATED)
                     # TODO envoyer block a tout les relays
                 else:
-                    data = {'trasactions': []}
+                    data = {'bad_transactions': []}
                     for transaction in bad_transactions:
-                        data['transactions'].append(Transaction.serialize(transaction))
+                        data['bad_transactions'].append(Transaction.serialize(transaction))
                     response = Response({"errors": "Houston, there is a problem.", "data": data},
                                         status=status.HTTP_406_NOT_ACCEPTABLE)
             else:
