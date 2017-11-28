@@ -4,7 +4,7 @@ from common.server import Server
 class Master:
     class __Master(Server):
         def __init__(self):
-            super(Master, self).__init__()
+            super(Master.__Master, self).__init__()
 
         def update_blockchain(self, block):
             hash_verify = self.verify_block(block)

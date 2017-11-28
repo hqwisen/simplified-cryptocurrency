@@ -2,7 +2,7 @@ from django.conf import settings
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication, BaseAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 from common import client
@@ -15,27 +15,43 @@ USERNAME = "RelayNode"  # The only user that can request something from the Mast
 
 # The password for this user is "RelayPwd123"
 
+class CustomAuthentication(BaseAuthentication):
+
+    def authenticate(self, request):
+        if request.user.is_relay:
+            return (request.user, None)
+        else:
+            return None
+
 class BlockchainView(BlockchainGetView):
+
+
+    authentication_classes = (CustomAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
     def get_server(self):
         return Master()
 
-    def get(self, request):
-        """
-        Manage the GET request and will return the current state of the blockchain
-        if the one requesting it is a Relay Node (see user and password above)
-        """
-        server = Master()
-        if is_auth(request.user):
-            super(BlockchainView, self).get(request)
-        # data = Blockchain.serialize(Master.master.blockchain)
-        #     response = Response(data, status = status.HTTP_200_OK)
-        else:
-            response = Response(status=status.HTTP_403_FORBIDDEN)
-
-        return response
+    # def get(self, request):
+    #     """
+    #     Manage the GET request and will return the current state of the blockchain
+    #     if the one requesting it is a Relay Node (see user and password above)
+    #     """
+    #     server = Master()
+    #     if is_auth(request.user):
+    #         super(BlockchainView, self).get(request)
+    #     # data = Blockchain.serialize(Master.master.blockchain)
+    #     #     response = Response(data, status = status.HTTP_200_OK)
+    #     else:
+    #         response = Response(status=status.HTTP_403_FORBIDDEN)
+    #
+    #     return response
 
 
 class BlockView(APIView):
+
+    authentication_classes = (CustomAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         """
@@ -48,44 +64,30 @@ class BlockView(APIView):
         If the block is accepted, the new block is sent to all relay nodes.
         """
         try:
-            if is_auth(request.user):
-                server = self.get_server()
-                # request contains the block, and the address of the miner
-                block_data = request.data['block']
-                block = Block.parse(block_data)
-                bad_transactions = server.update_blockchain(block)
-                if len(bad_transactions) == 0: # block is valid
-                    response = Response({"Title": "Well played, your block has been added !"},
-                                        status=status.HTTP_201_CREATED)
-                    for relay_ip in settings.RELAY_IP:
-                        client.post(relay_ip, 'block', block_data)
-                # TODO add reward to miner using request.data['miner_address']
-                # client.post(relay_ip, 'transactions', transaction)
+            server = self.get_server()
+            # request contains the block, and the address of the miner
+            block_data = request.data['block']
+            block = Block.parse(block_data)
+            bad_transactions = server.update_blockchain(block)
+            if len(bad_transactions) == 0: # block is valid
+                response = Response({"Title": "Well played, your block has been added !"},
+                                    status=status.HTTP_201_CREATED)
+                for relay_ip in settings.RELAY_IP:
+                    client.post(relay_ip, 'block', block_data)
+            # TODO add reward to miner using request.data['miner_address']
+            # client.post(relay_ip, 'transactions', transaction)
 
-                else:
-                    data = {'bad_transactions': []}
-                    for transaction in bad_transactions:
-                        data['bad_transactions'].append(Transaction.serialize(transaction))
-                    response = Response({"errors": "Houston, there is a problem.", "data": data},
-                                        status=status.HTTP_406_NOT_ACCEPTABLE)
-                    # Need to send to all relays, since the miner can request
-                    # transactions from any relay
-                    for relay_ip in settings.RELAY_IP:
-                        client.delete(relay_ip, 'transactions', data)
             else:
-                response = Response(status=status.HTTP_403_FORBIDDEN)
+                data = {'bad_transactions': []}
+                for transaction in bad_transactions:
+                    data['bad_transactions'].append(Transaction.serialize(transaction))
+                response = Response({"errors": "Houston, there is a problem.", "data": data},
+                                    status=status.HTTP_406_NOT_ACCEPTABLE)
+                # Need to send to all relays, since the miner can request
+                # transactions from any relay
+                for relay_ip in settings.RELAY_IP:
+                    client.delete(relay_ip, 'transactions', data)
 
         except ParseException as e:
             response = Response({"Title": "There is a problem"}, status=status.HTTP_406_NOT_ACCEPTABLE)
         return response
-
-
-def is_auth(user):
-    """
-    Verify if the user is allowed or not
-    """
-    flag = False
-    if str(user) == USERNAME:
-        flag = True
-
-    return flag
