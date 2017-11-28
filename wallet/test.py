@@ -12,10 +12,8 @@ def main():
     # Creating and loading tests
     ad = Address.create(PW, LABEL)
     ad_b = Address.load(PW, LABEL)
-    print(ad.public_key)
-    print(ad.raw)
-    print(ad_b.public_key)
-    print(ad_b.raw)
+    print(ad.public_key == ad_b.public_key)
+    print(ad.raw == ad_b.raw)
 
     # Wallet tests
     wallet = Wallet()
@@ -27,7 +25,8 @@ def main():
 
     # Transaction test
     transaction = wallet.create_transaction(ad.raw, 20)
-    print('Receiver: {0}\n Amount: {1}\n Signature: {2}\n Timestamp: {3}'.format(transaction.receiver, transaction.amount, transaction.signature, transaction.timestamp))
+    print('\tReceiver: {0}\n\tAmount: {1}\n\tSignature: {2}\n\t Timestamp: {3}'.format(transaction.receiver, transaction.amount, transaction.signature, transaction.timestamp))
+    print(transaction.verify_sender_and_public_key())
 
     # Signature verification example (and therefore test)
     verify_signature(transaction)

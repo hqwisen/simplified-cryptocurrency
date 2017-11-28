@@ -1,3 +1,14 @@
+import os
+from Crypto.PublicKey import DSA
+from Crypto.Cipher import AES
+from Crypto.Hash import RIPEMD160, SHA256
+
+P_SIZE = 2048
+PASSWORD_LENGTH = 16
+ENCODING = 'utf-8'
+SEPARATOR = b'\n+==============+\n'
+CRLF = b'\r\n'
+SAVE_DIR = 'addresses'
 
 class ParseException(Exception):
     pass
@@ -106,12 +117,75 @@ class Transaction:
         transactionDict['timestamp'] = transaction.timestamp
         return transactionDict
 
-    def __init__(self):
-        self.receiver = str()
-        self.sender = str()
-        self.amount = 0
+    def __init__(self, receiver=str(), sender=str(), amount=0, timestamp=str(), sender_public_key=str()):
+        self.receiver = receiver
+        self.sender = sender
+        self.amount = amount
+        self.timestamp = timestamp
         self.hash = str()
-        self.sender_public_key = str()
+        self.sender_public_key = sender_public_key
         self.signature = str()
-        self.timestamp = str()
 
+    def generate_hash(self):
+        self.hash = SHA256.new(bytes(self.receiver, ENCODING) +
+                                bytes(self.sender, ENCODING) +
+                                bytes(self.amount, ENCODING) +
+                                bytes(str(self.timestamp), ENCODING))
+
+    def verify_sender_and_public_key(self):
+        """
+        Verify whether the public key and sender address match
+        """
+        return self.sender == Address.generate_address(self.sender_public_key)
+
+class Address:
+
+    @staticmethod
+    def generate_address(public_key):
+        return RIPEMD160.new(public_key).hexdigest()
+
+    @staticmethod
+    def load(password, label):
+        with open(os.path.join(SAVE_DIR, label),'rb') as f:
+            address = Address()
+            address.raw = f.readline().strip(CRLF).decode(ENCODING)
+            nonce = f.readline().strip(CRLF)
+            cipher_text = b''.join(f.readlines())
+            cipher = AES.new(bytes(password, ENCODING), AES.MODE_EAX, nonce)
+            keys = cipher.decrypt(cipher_text).split(SEPARATOR)
+            address.label = label
+            address.public_key = keys[0]
+            address.private_key = keys[0]
+            return address
+
+    @staticmethod
+    def create(password, address_label):
+        if len(bytes(password, ENCODING)) != PASSWORD_LENGTH: #Pw must be of 16 bytes
+            return None
+        new_key = DSA.generate(P_SIZE)
+        address = Address()
+        address.private_key = new_key.exportKey()
+        address.public_key = new_key.publickey().exportKey()
+        address.raw = Address.generate_address(address.public_key)
+        if address_label == '':
+            address_label = address.raw
+        address.label = address_label
+        address.save(password)
+        return address
+
+    def __init__(self):
+        self.public_key = None
+        self.private_key = None
+        self.raw = None
+        self.label = None
+
+    def save(self, password):
+        if not os.path.exists(SAVE_DIR):
+            os.makedirs(SAVE_DIR)
+        with open(os.path.join(SAVE_DIR, self.label),'wb') as f:
+            keys = self.public_key + SEPARATOR + self.private_key
+            cipher = AES.new(bytes(password, ENCODING), AES.MODE_EAX)
+            cipher_text = cipher.encrypt(keys)
+            f.write(bytes(self.raw, ENCODING)+CRLF)
+            f.write(cipher.nonce+CRLF)
+            f.write(cipher_text)
