@@ -1,5 +1,3 @@
-import httplib2
-
 from django.test import Client
 
 
@@ -13,6 +11,7 @@ def post(server, url, data):
     c = Client()
     response = c.get(server + '/' + url, data)
     return response
+
 
 def delete(server, url, data):
     c = Client()

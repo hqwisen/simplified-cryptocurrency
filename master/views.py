@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from common import client
 from master.master import Master
 from common.models import Blockchain, Block, Transaction, ParseException
-from common.views import BlockchainGetView
+from common.views import BlockchainGETView
 
 USERNAME = "RelayNode"  # The only user that can request something from the Master Node
 
@@ -23,7 +23,7 @@ class CustomAuthentication(BaseAuthentication):
         else:
             return None
 
-class BlockchainView(BlockchainGetView):
+class BlockchainView(BlockchainGETView):
 
 
     authentication_classes = (CustomAuthentication,)

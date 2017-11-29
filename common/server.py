@@ -2,15 +2,23 @@ from common.models import Blockchain
 
 
 class Server:
+    """
+    Basic class implementing a server node that handle
+    the blockchain.
+    """
 
     def __init__(self):
-        self.blockchain = Blockchain()
+        self.__blockchain = Blockchain()
 
     def add_block(self, block):
         self.blockchain.add_block(block)
 
     def part_of(self, start, end):
         return self.blockchain.part_of(start, end)
+
+    @property
+    def blockchain(self):
+        return self.__blockchain
 
     def get_blockchain(self):
         return self.blockchain

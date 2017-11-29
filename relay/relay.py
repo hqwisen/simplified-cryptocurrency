@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 class RelayError(Exception):
     pass
 
-class Relay:
 
+class Relay:
     class __Relay(Server):
         def __init__(self):
             super(Relay.__Relay, self).__init__()
@@ -53,6 +53,7 @@ class Relay:
                 i += 1
 
     instance = None
+
     def __init__(self):
         if not Relay.instance:
             Relay.instance = Relay.__Relay()

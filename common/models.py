@@ -4,7 +4,6 @@ from Crypto.Cipher import AES
 from Crypto.Hash import RIPEMD160, SHA256
 from Crypto.Signature import DSS
 
-
 P_SIZE = 2048
 PASSWORD_LENGTH = 16
 ENCODING = 'utf-8'
@@ -12,12 +11,12 @@ SEPARATOR = b'\n+==============+\n'
 CRLF = b'\r\n'
 SAVE_DIR = 'addresses'
 
+
 class ParseException(Exception):
     pass
 
 
 class Blockchain:
-
     @staticmethod
     def parse(data):
         blockchain = Blockchain
@@ -28,7 +27,6 @@ class Blockchain:
             raise ParseException("Error while parsing blockchain %s" % (e))
         return blockchain
 
-
     @staticmethod
     def serialize(blockchain):
         data = dict()
@@ -38,21 +36,39 @@ class Blockchain:
             data['blocks'].append(Block.serialize(block))
         return data
 
-    def __init__(self, blocks = []):
+    def __init__(self, blocks=[]):
         self.blocks = blocks
 
-    def add_block(self,block):
+    def add_block(self, block):
         self.blocks.append(block)
 
     def part_of(self, start, end):
-        if end != -1:
-            blocks = self.blocks[start:end]
+        """
+        Return a part of the blockchain [start:end].
+        if both start and end are None: return the full blockchain.
+        If start = None: return from the beginning to end.
+        If end = None: return from start to last element of the list.
+        This method will return a shadow copy of the blockchain.
+        :param start: start index of the blocks list or None.
+        :param end: end index of the blocks list or None
+        :return: Blockchain instance containing only the requested part.
+        """
+        if start is None and end is None:
+            blocks = self.blocks[:]
+        elif start is None:
+            blocks = self.blocks[:end]
+        elif end is None:
+            blocks = self.blocks[start:]
         else:
-            block = self.block[start:]
-        blockchain = Blockchain(blocks)
-        return blockchain
+            blocks = self.blocks[:]
+        return Blockchain(blocks)
 
     def add_blocks(self, blocks):
+        """
+        Extends the current blockchain with a list of blocks.
+        :param blocks: list of blocks to add in the blockchain
+        :return: None
+        """
         self.blocks.extend(blocks)
 
     def __str__(self):
@@ -74,8 +90,8 @@ class Blockchain:
                     balance += transaction.amount
         return balance
 
-class Block:
 
+class Block:
     @staticmethod
     def parse(data):
         block = Block()
@@ -100,7 +116,6 @@ class Block:
             data['transactions'].append(transactionDict)
         return data
 
-
     def __init__(self, header="", nonce=""):
         self.header = header
         self.nonce = nonce
@@ -118,8 +133,8 @@ class Block:
             s += transaction.toString()
         return s
 
-class Transaction:
 
+class Transaction:
     @staticmethod
     def parse(data):
         transaction = Transaction()
@@ -143,7 +158,7 @@ class Transaction:
         return transactionDict
 
     def __init__(self, receiver=str(), amount=0,
-                        timestamp=str(), sender_public_key=str()):
+                 timestamp=str(), sender_public_key=str()):
         self.receiver = receiver
         self.amount = amount
         self.timestamp = timestamp
@@ -162,9 +177,9 @@ class Transaction:
 
     def generate_hash(self):
         self.hash = SHA256.new(bytes(self.receiver, ENCODING) +
-                                bytes(self.amount, ENCODING) +
-                                bytes(str(self.timestamp), ENCODING) +
-                                self.sender_public_key)
+                               bytes(self.amount, ENCODING) +
+                               bytes(str(self.timestamp), ENCODING) +
+                               self.sender_public_key)
 
     def verify_signature(self):
         verifier = DSS.new(DSA.import_key(self.sender_public_key), 'fips-186-3')
@@ -175,16 +190,14 @@ class Transaction:
             return False
 
 
-
 class Address:
-
     @staticmethod
     def generate_address(public_key):
         return RIPEMD160.new(public_key).hexdigest()
 
     @staticmethod
     def load(password, label):
-        with open(os.path.join(SAVE_DIR, label),'rb') as f:
+        with open(os.path.join(SAVE_DIR, label), 'rb') as f:
             address = Address()
             address.raw = f.readline().strip(CRLF).decode(ENCODING)
             nonce = f.readline().strip(CRLF)
@@ -198,7 +211,7 @@ class Address:
 
     @staticmethod
     def create(password, address_label):
-        if len(bytes(password, ENCODING)) != PASSWORD_LENGTH: #Pw must be of 16 bytes
+        if len(bytes(password, ENCODING)) != PASSWORD_LENGTH:  # Pw must be of 16 bytes
             return None
         new_key = DSA.generate(P_SIZE)
         address = Address()
@@ -220,12 +233,12 @@ class Address:
     def save(self, password):
         if not os.path.exists(SAVE_DIR):
             os.makedirs(SAVE_DIR)
-        with open(os.path.join(SAVE_DIR, self.label),'wb') as f:
+        with open(os.path.join(SAVE_DIR, self.label), 'wb') as f:
             keys = self.public_key + SEPARATOR + self.private_key
             cipher = AES.new(bytes(password, ENCODING), AES.MODE_EAX)
             cipher_text = cipher.encrypt(keys)
-            f.write(bytes(self.raw, ENCODING)+CRLF)
-            f.write(cipher.nonce+CRLF)
+            f.write(bytes(self.raw, ENCODING) + CRLF)
+            f.write(cipher.nonce + CRLF)
             f.write(cipher_text)
 
     def to_string(self):
