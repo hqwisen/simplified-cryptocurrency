@@ -35,6 +35,14 @@ class Relay:
             return None
 
         def update_blockchain(self, block):
+            """
+            Update the blockchain by adding the new block.
+            If the block cannot be added to the blockchain,
+            because the hashes do not fit, it returns False.
+            Return True if everything went fine.
+            :param block: block to be added
+            :return: True if added, False otherwise.
+            """
             is_valid = self.verify_hash(block)
             if is_valid:
                 self.add_block(block)
@@ -44,6 +52,11 @@ class Relay:
             return is_valid
 
         def remove_transaction(self, transaction):
+            """
+            Remove transaction from the relay list.
+            :param transaction: transaction to be removed
+            :return: None
+            """
             i = 0
             while i < len(self.transactions):
                 if transaction.hash == self.transactions[i].hash:

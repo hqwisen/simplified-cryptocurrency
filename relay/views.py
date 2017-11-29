@@ -28,7 +28,7 @@ class BlockchainView(BlockchainGETView):
             #     self.server.add_blocks(blockchain.blocks)
             return Response(status=status.HTTP_201_CREATED)
         except ParseException as e:
-            return Response(str(e), status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response({'errors': str(e)}, status=status.HTTP_406_NOT_ACCEPTABLE)
 
     @property
     def server(self):

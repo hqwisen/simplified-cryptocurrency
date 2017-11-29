@@ -23,8 +23,9 @@ class Blockchain:
         try:
             for block in data['blocks']:
                 blockchain.add_block(Block.parse(block))
-        except (KeyError, ParseException) as e:
-            raise ParseException("Error while parsing blockchain %s" % (e))
+        except KeyError as e:
+            raise ParseException("Error: no 'blocks' given while"
+                                 " parsing blockchain.")
         return blockchain
 
     @staticmethod
@@ -104,8 +105,9 @@ class Block:
             block.nonce = data['nonce']
             for transaction in data['transactions']:
                 block.add_transaction(Transaction.parse(transaction))
-        except (KeyError, ParseException) as e:
-            raise ParseException("Error while parsing block %s" % (e))
+        except KeyError as e:
+            raise ParseException("Attribute %s was not given "
+                                 "while parsing block." % (e))
         return block
 
     @staticmethod
@@ -148,7 +150,8 @@ class Transaction:
             for attr in attrs:
                 transaction.__dict__[attr] = data[attr]
         except KeyError as e:
-            raise ParseException("Error while parsing transaction %s" % (e))
+            raise ParseException("Attribute %s was not given "
+                                 "while parsing transaction." % (e))
         return transaction
 
     @staticmethod
