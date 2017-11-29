@@ -20,9 +20,6 @@ class Server:
     def blockchain(self):
         return self.__blockchain
 
-    def get_blockchain(self):
-        return self.blockchain
-
     def add_blocks(self, blocks):
         self.blockchain.add_blocks(blocks)
 

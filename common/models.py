@@ -37,7 +37,7 @@ class Blockchain:
         return data
 
     def __init__(self, blocks=[]):
-        self.blocks = blocks
+        self.__blocks = blocks
 
     def add_block(self, block):
         self.blocks.append(block)
@@ -70,6 +70,10 @@ class Blockchain:
         :return: None
         """
         self.blocks.extend(blocks)
+
+    @property
+    def blocks(self):
+        return self.__blocks
 
     def __str__(self):
         return str(self.blocks)
