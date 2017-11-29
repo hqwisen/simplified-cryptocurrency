@@ -1,62 +1,34 @@
-import Crypto.PublicKey.DSA as DSA
-import Crypto.Cipher.AES as AES
-import hashlib
 import os
+import sys
+sys.path.append(os.path.dirname(os.getcwd())) # Since wallet isn't a Django app, project dir must be added to import models
 
-P_SIZE = 2048
-RIPEMD160 = 'ripemd160'
-PASSWORD_LENGTH = 16
-ENCODING = 'utf-8'
-SEPARATOR = b'\n+==============+\n'
-CRLF = b'\r\n'
-SAVE_DIR = 'addresses'
+from datetime import datetime
+from Crypto.Signature import DSS
 
-class Address:
+from common.models import Transaction, Address, DSA, ENCODING
+
+
+SIGNATURE_MODE = 'fips-186-3'
+
+
+class Wallet:
 
     def __init__(self):
-        self.public_key = None
-        self.private_key = None
-        self.raw = None
-        self.label = None
+        self.current_address = None
 
-    def save(self, password):
-        if not os.path.exists(SAVE_DIR):
-            os.makedirs(SAVE_DIR)
-        with open(os.path.join(SAVE_DIR, self.label),'wb') as f:
-            keys = self.public_key + SEPARATOR + self.private_key
-            cipher = AES.new(bytes(password, ENCODING), AES.MODE_EAX)
-            cipher_text = cipher.encrypt(keys)
-            f.write(bytes(self.raw, ENCODING)+CRLF)
-            f.write(cipher.nonce+CRLF)
-            f.write(cipher_text)
+    def log_in(self, password, label):
+        self.current_address = Address.load(password, label)
 
-    @staticmethod
-    def load(password, label):
-        with open(os.path.join(SAVE_DIR, label),'rb') as f:
-            address = Address()
-            address.raw = f.readline().strip(CRLF).decode(ENCODING)
-            nonce = f.readline().strip(CRLF)
-            cipher_text = b''.join(f.readlines())
-            cipher = AES.new(bytes(password, ENCODING), AES.MODE_EAX, nonce)
-            keys = cipher.decrypt(cipher_text).split(SEPARATOR)
-            address.label = label
-            address.public_key = keys[0]
-            address.private_key = keys[0]
-            return address
+    def sign_up(self, password, address_label=''):
+        self.current_address = Address.create(password, address_label)
 
-    @staticmethod
-    def create(password, address_label=''):
-        if len(bytes(password, ENCODING)) != PASSWORD_LENGTH: #Pw must be of 16 bytes
-            return None
-        new_key = DSA.generate(P_SIZE)
-        hasher = hashlib.new(RIPEMD160)
-        address = Address()
-        address.private_key = new_key.exportKey()
-        address.public_key = new_key.publickey().exportKey()
-        hasher.update(address.public_key)       
-        address.raw = hasher.hexdigest()
-        if address_label == '':
-            address_label = address.raw
-        address.label = address_label
-        address.save(password)
-        return address
+    def create_transaction(self, destination_address, amount):
+        new_transaction = Transaction(destination_address,amount, datetime.now().timestamp(),
+                                        self.current_address.public_key)
+        new_transaction.generate_hash()
+        self.sign_transaction(new_transaction)
+        return new_transaction
+
+    def sign_transaction(self, transaction):
+        signer = DSS.new(DSA.import_key(self.current_address.private_key), SIGNATURE_MODE)
+        transaction.signature = signer.sign(transaction.hash)
