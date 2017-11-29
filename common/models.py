@@ -31,9 +31,8 @@ class Blockchain:
     @staticmethod
     def serialize(blockchain):
         data = dict()
-        blocks = blockchain.blocks
         data['blocks'] = []
-        for block in blocks:
+        for block in blockchain.blocks:
             data['blocks'].append(Block.serialize(block))
         return data
 
@@ -115,9 +114,8 @@ class Block:
         data = dict()
         data['header'] = block.header
         data['nonce'] = block.nonce
-        transactions = block.transactions
         data['transactions'] = []
-        for transaction in transactions:
+        for transaction in block.transactions:
             transactionDict = Transaction.serialize(transaction)
             data['transactions'].append(transactionDict)
         return data
@@ -145,9 +143,8 @@ class Transaction:
     @staticmethod
     def parse(data):
         transaction = Transaction()
-        attrs = transaction.__dict__.keys()
         try:
-            for attr in attrs:
+            for attr in transaction.__dict__.keys():
                 transaction.__dict__[attr] = data[attr]
         except KeyError as e:
             raise ParseException("Attribute %s was not given "

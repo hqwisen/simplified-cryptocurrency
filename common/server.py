@@ -16,9 +16,6 @@ class Server:
     def part_of(self, start, end):
         return self.blockchain.part_of(start, end)
 
-    @property
-    def blockchain(self):
-        return self.__blockchain
 
     def add_blocks(self, blocks):
         self.blockchain.add_blocks(blocks)
@@ -32,5 +29,10 @@ class Server:
         # TODO implement verify hash
         return True
 
+    @property
+    def blockchain(self):
+        return self.__blockchain
+
+    @property
     def blockchain_size(self):
         return len(self.blockchain)

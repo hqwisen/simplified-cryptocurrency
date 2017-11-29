@@ -173,3 +173,6 @@ LOGGING = {
 MASTER_IP = "localhost:8000"
 
 RELAY_IP = ["localhost:8000"]
+
+# Filter MasterNode access with credentials
+RELAY_CREDENTIALS = {'username': 'relay', 'password': '12345'}

@@ -20,12 +20,12 @@ class BlockchainView(BlockchainGETView):
         try:
             block = Block.parse(request.data)
             updated = self.server.update_blockchain(block)
-            # if not updated:
-            #     last_index = self.server.blockchain_size() - 1
-            #     response = client.get(settings.MASTER_IP,
-            #                           'blockchain?start=%d&end=%d' % (last_index, -1))
-            #     blockchain = Blockchain.parse(response.data)
-            #     self.server.add_blocks(blockchain.blocks)
+            # TODO test when the blockchain is not updated
+            if not updated:
+                response = client.get(settings.MASTER_IP,
+                                      'blockchain?start=%d' % (self.server.blockchain_size - 1))
+                blockchain = Blockchain.parse(response.data)
+                self.server.add_blocks(blockchain.blocks)
             return Response(status=status.HTTP_201_CREATED)
         except ParseException as e:
             return Response({'errors': str(e)}, status=status.HTTP_406_NOT_ACCEPTABLE)

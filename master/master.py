@@ -13,7 +13,7 @@ class Master:
             otherwise reject it and return the bad transactions that
             made it invalid
             """
-            hash_verify = self.verify_block(block)
+            hash_verify = self.verify_hash(block)
             results = self.verify_transactions(block)
             if hash_verify and len(results) == 0:
                 self.add_block(block)
@@ -49,10 +49,6 @@ class Master:
                     bad_transactions.append(transaction)
 
             return bad_transactions
-
-
-
-
 
     instance = None
 

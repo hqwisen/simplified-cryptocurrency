@@ -1,56 +1,27 @@
 from django.conf import settings
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.authentication import SessionAuthentication, BasicAuthentication, BaseAuthentication
-from rest_framework.permissions import IsAuthenticated
 
 from common import client
-from master.master import Master
-from common.models import Blockchain, Block, Transaction, ParseException
+from common.models import Block, Transaction, ParseException
 from common.views import BlockchainGETView
+from master.auth import RelayAuthentication
+from master.master import Master
 
-USERNAME = "RelayNode"  # The only user that can request something from the Master Node
-
-
-# The password for this user is "RelayPwd123"
-
-class CustomAuthentication(BaseAuthentication):
-
-    def authenticate(self, request):
-        if request.user.is_relay:
-            return (request.user, None)
-        else:
-            return None
 
 class BlockchainView(BlockchainGETView):
-
-
-    authentication_classes = (CustomAuthentication,)
+    authentication_classes = (RelayAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def get_server(self):
+    @property
+    def server(self):
         return Master()
-
-    # def get(self, request):
-    #     """
-    #     Manage the GET request and will return the current state of the blockchain
-    #     if the one requesting it is a Relay Node (see user and password above)
-    #     """
-    #     server = Master()
-    #     if is_auth(request.user):
-    #         super(BlockchainView, self).get(request)
-    #     # data = Blockchain.serialize(Master.master.blockchain)
-    #     #     response = Response(data, status = status.HTTP_200_OK)
-    #     else:
-    #         response = Response(status=status.HTTP_403_FORBIDDEN)
-    #
-    #     return response
 
 
 class BlockView(APIView):
-
-    authentication_classes = (CustomAuthentication,)
+    authentication_classes = (RelayAuthentication,)
     permission_classes = (IsAuthenticated,)
 
     def post(self, request):
@@ -69,7 +40,7 @@ class BlockView(APIView):
             block_data = request.data['block']
             block = Block.parse(block_data)
             bad_transactions = server.update_blockchain(block)
-            if len(bad_transactions) == 0: # block is valid
+            if len(bad_transactions) == 0:  # block is valid
                 response = Response({"Title": "Well played, your block has been added !"},
                                     status=status.HTTP_201_CREATED)
                 for relay_ip in settings.RELAY_IP:

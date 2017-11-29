@@ -1,15 +1,15 @@
 from django.test import Client
 
 
-def get(server, url, data):
+def get(server, url, data = None):
     c = Client()
-    response = c.post(server + '/' + url, data)
+    response = c.get(server + '/' + url, data)
     return response
 
 
 def post(server, url, data):
     c = Client()
-    response = c.get(server + '/' + url, data)
+    response = c.post(server + '/' + url, data)
     return response
 
 
