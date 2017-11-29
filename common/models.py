@@ -32,7 +32,10 @@ class Blockchain:
         self.blocks.append(block)
 
     def part_of(self, start, end):
-        blocks = self.blocks[start:end]
+        if end != -1:
+            blocks = self.blocks[start:end]
+        else:
+            block = self.blocks[start:]
         blockchain = Blockchain(blocks)
         return blockchain
 
