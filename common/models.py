@@ -36,23 +36,38 @@ class Blockchain:
             data['blocks'].append(Block.serialize(block))
         return data
 
-    def __init__(self):
-        self.blocks = []
+    def __init__(self, blocks = []):
+        self.blocks = blocks
 
     def add_block(self,block):
         self.blocks.append(block)
 
     def part_of(self, start, end):
         blocks = self.blocks[start:end]
-        blockchain = Blockchain()
-        blockchain.blocks = blocks
+        blockchain = Blockchain(blocks)
         return blockchain
+
+    def add_blocks(self, blocks):
+        self.blocks.extend(blocks)
 
     def __str__(self):
         return str(self.blocks)
 
     def __repr__(self):
         return str(self)
+
+    def __len__(self):
+        return len(self.blocks)
+
+    def get_balance(self, address):
+        balance = 0
+        for block in self.blocks:
+            for transaction in block.get_transactions():
+                if Address.generate_address(transaction.sender_public_key) == address:
+                    balance -= transaction.amount
+                elif transaction.receiver == address:
+                    balance += transaction.amount
+        return balance
 
 class Block:
 
@@ -92,6 +107,12 @@ class Block:
     def add_transaction(self, transaction):
         self.transactions.append(transaction)
 
+    def get_string_of_transactions(self):
+        s = ""
+        for transaction in self.transactions:
+            s += transaction.toString()
+        return s
+
 class Transaction:
 
     @staticmethod
@@ -109,7 +130,6 @@ class Transaction:
     def serialize(transaction):
         transactionDict = dict()
         transactionDict['receiver'] = transaction.receiver
-        transactionDict['sender'] = transaction.sender
         transactionDict['amount'] = transaction.amount
         transactionDict['hash'] = transaction.hash
         transactionDict['sender_public_key'] = transaction.sender_public_key
@@ -117,9 +137,9 @@ class Transaction:
         transactionDict['timestamp'] = transaction.timestamp
         return transactionDict
 
-    def __init__(self, receiver=str(), sender=str(), amount=0, timestamp=str(), sender_public_key=str()):
+    def __init__(self, receiver=str(), amount=0,
+                        timestamp=str(), sender_public_key=str()):
         self.receiver = receiver
-        self.sender = sender
         self.amount = amount
         self.timestamp = timestamp
         self.hash = str()
@@ -128,15 +148,9 @@ class Transaction:
 
     def generate_hash(self):
         self.hash = SHA256.new(bytes(self.receiver, ENCODING) +
-                                bytes(self.sender, ENCODING) +
                                 bytes(self.amount, ENCODING) +
-                                bytes(str(self.timestamp), ENCODING))
-
-    def verify_sender_and_public_key(self):
-        """
-        Verify whether the public key and sender address match
-        """
-        return self.sender == Address.generate_address(self.sender_public_key)
+                                bytes(str(self.timestamp), ENCODING) +
+                                self.sender_public_key)
 
 class Address:
 
@@ -189,3 +203,7 @@ class Address:
             f.write(bytes(self.raw, ENCODING)+CRLF)
             f.write(cipher.nonce+CRLF)
             f.write(cipher_text)
+
+    def to_string(self):
+        return self.receiver + self.sender + str(self.amount) + self.hash + \
+               self.sender_public_key + self.signature + self.timestamp

@@ -1,25 +1,51 @@
+from common.server import Server
+from common.models import Block, Blockchain
 
-from common.models import Blockchain
 
 class Master:
-    """
-    Singleton class which will containt the blockchain
-    """
-    master = None
+    class __Master(Server):
+        def __init__(self):
+            super(Master.__Master, self).__init__()
 
-    @staticmethod
-    def init_master():
-        """
-        Initialize the master serverapp
-        :return: the created Master instance
-        """
-        print("Init master")
-        Master.master = Master()
+        def update_blockchain(self, block):
+            """
+            Add the block from the parameter if it's a valid one,
+            otherwise reject it and return the bad transactions that
+            made it invalid
+            """
+            hash_verify = self.verify_block(block)
+            results = self.verify_transactions(block)
+            if hash_verify and len(results) == 0:
+                self.add_block(block)
+                return []
+            else:
+                return results
 
-        return Master.master
+        def verify_transactions(block):
+            """
+            Return a list of invalid transactions
+            """
+
+            bad_transactions = []
+
+            for transaction in block.get_transactions():
+                sender = transaction.get_sender()
+                if self.blockchain.get_balance(sender) < transaction.get_amount():
+                    bad_transactions.append(transaction)
+                else:
+                    #TODO Check signature
+                    pass
+            return bad_transactions
+
+
+
+
+
+    instance = None
 
     def __init__(self):
-        self.blockchain = Blockchain()
+        if not Master.instance:
+            Master.instance = Master.__Master()
 
-    def add_block_in_blockchain(self,block):
-        self.blockchain.add_block(block)
+    def __getattr__(self, name):
+        return getattr(self.instance, name)

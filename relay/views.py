@@ -1,68 +1,74 @@
-import httplib2
+import logging
+
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import status as httpstatus
 
-from common.models import Blockchain, Block, Transaction, ParseException
-from relay.apps import RelayConfig
+from common import client
+from common.models import Block, Transaction, ParseException, Blockchain
+from common.views import BlockchainGetView
 from relay.relay import Relay, RelayError
 
-import logging
+
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
 
-class BlockchainView(APIView):
-
-    def get(self, request):
-        blockchain = Relay.blockchain
-        try:
-            start, end = int(request.query_params['start']), int(request.query_params['end'])
-            blockchain = Relay.part_of(start, end)
-        except (KeyError, ValueError) as e:
-            logger.info("Error while parsing params of GET blockchain; return all blockchain")
-        data = Blockchain.serialize(blockchain)
-        return Response(data, status=httpstatus.HTTP_200_OK)
+class BlockchainView(BlockchainGetView):
 
     def post(self, request):
+        server = self.get_server()
         try:
             block = Block.parse(request.data)
-            Relay.update_blockchain(block)
-            return Response(status=httpstatus.HTTP_201_CREATED)
+            updated = server.update_blockchain(block)
+            if not updated:
+                last_index = server.blockchain_size() - 1
+                response = client.get(settings.MASTER_IP,
+                                      'blockchain?start=%d&end=%d' % (last_index, -1))
+                blockchain = Blockchain.parse(response.data)
+                server.add_blocks(blockchain.get_blocks())
+            return Response(status=status.HTTP_201_CREATED)
         except ParseException as e:
-            return Response(str(e), status=httpstatus.HTTP_406_NOT_ACCEPTABLE)
+            return Response(str(e), status=status.HTTP_406_NOT_ACCEPTABLE)
+
+    def get_server(self):
+        return Relay()
 
 
 class BlockView(APIView):
 
     def post(self, request):
-        h = httplib2.Http()
-        resp, content = h.request("http://" + RelayConfig.master_ip + "/master/block",
-                                  "POST", body=str(request.data))
-        # TODO The miner should also send his address, to be forwarded to the master for the reward
-        return Response("Successfully received", status=httpstatus.HTTP_201_CREATED)
+        response = client.post(settings.MASTER_IP, 'blockchain', request.data)
+        # TODO should we send an anwser base on master node response ?
+        return Response("Successfully received", status=status.HTTP_200_OK)
 
 
 class TransactionView(APIView):
 
     def get(self, request):
-        exclude =  request.data['exclude_txid'] if 'exclude_txid' in request.data else []
-        if 'exclude_txid' not in request.data:
-            logger.info("'exclude_txid' not in request")
-        transaction = Relay.get_transaction(exclude)
+        server = Relay()
+        exclude =  request.data['exclude_hash'] if 'exclude_hash' in request.data else []
+        if 'exclude_hash' not in request.data:
+            logger.info("'exclude_hash' not in request")
+        transaction = server.get_transaction(exclude)
         if transaction != None:
-            data = Transaction.serialize(transaction)
-            status = httpstatus.HTTP_200_OK
+            return Response(Transaction.serialize(transaction),
+                            status=status.HTTP_200_OK)
         else:
-            data = {'errors': 'no transaction to send'}
-            status = httpstatus.HTTP_404_NOT_FOUND
-        return Response(data, status=status)
+            return Response({'errors': 'no transaction to send'},
+                            status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
+        server = Relay()
         try:
             transaction = Transaction.parse(request.data)
-            Relay.add_transaction(transaction)
-            return Response(status=httpstatus.HTTP_201_CREATED)
+            server.add_transaction(transaction)
+            return Response(status=status.HTTP_201_CREATED)
         except (RelayError, ParseException) as e:
-            return Response(str(e), status=httpstatus.HTTP_406_NOT_ACCEPTABLE)
+            return Response(str(e), status=status.HTTP_406_NOT_ACCEPTABLE)
 
+    def delete(self, request):
+        server = Relay()
+        for transaction in request.data['bad_transactions']:
+            server.remove_transaction(transaction)

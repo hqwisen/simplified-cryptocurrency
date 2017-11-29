@@ -23,7 +23,8 @@ class Wallet:
         self.current_address = Address.create(password, address_label)
 
     def create_transaction(self, destination_address, amount):
-        new_transaction = Transaction(destination_address, self.current_address.raw, amount, datetime.now().timestamp(), self.current_address.public_key)
+        new_transaction = Transaction(destination_address,amount, datetime.now().timestamp(),
+                                        self.current_address.public_key)
         new_transaction.generate_hash()
         self.sign_transaction(new_transaction)
         return new_transaction
