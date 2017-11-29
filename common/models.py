@@ -2,6 +2,8 @@ import os
 from Crypto.PublicKey import DSA
 from Crypto.Cipher import AES
 from Crypto.Hash import RIPEMD160, SHA256
+from Crypto.Signature import DSS
+
 
 P_SIZE = 2048
 PASSWORD_LENGTH = 16
@@ -43,10 +45,7 @@ class Blockchain:
         self.blocks.append(block)
 
     def part_of(self, start, end):
-        if end != -1:
-            blocks = self.blocks[start:end]
-        else:
-            block = self.blocks[start:]
+        blocks = self.blocks[start:end]
         blockchain = Blockchain(blocks)
         return blockchain
 
@@ -66,7 +65,7 @@ class Blockchain:
         balance = 0
         for block in self.blocks:
             for transaction in block.get_transactions():
-                if Address.generate_address(transaction.sender_public_key) == address:
+                if Address.generate_address(transaction.get_sender_public_key()) == address:
                     balance -= transaction.amount
                 elif transaction.receiver == address:
                     balance += transaction.amount
@@ -149,11 +148,30 @@ class Transaction:
         self.sender_public_key = sender_public_key
         self.signature = str()
 
+    def get_receiver(self):
+        return self.receiver
+
+    def get_amount(self):
+        return self.amount
+
+    def get_sender_public_key(self):
+        return self.sender_public_key
+
     def generate_hash(self):
         self.hash = SHA256.new(bytes(self.receiver, ENCODING) +
                                 bytes(self.amount, ENCODING) +
                                 bytes(str(self.timestamp), ENCODING) +
                                 self.sender_public_key)
+
+    def verify_signature(self):
+        verifier = DSS.new(DSA.import_key(self.sender_public_key), 'fips-186-3')
+        try:
+            verifier.verify(self.hash, self.signature)
+            return True
+        except ValueError:
+            return False
+
+
 
 class Address:
 

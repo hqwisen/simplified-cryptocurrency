@@ -29,12 +29,11 @@ class Master:
             bad_transactions = []
 
             for transaction in block.get_transactions():
-                sender = transaction.get_sender()
-                if self.blockchain.get_balance(sender) < transaction.get_amount():
+                sender_address = Address.generate_address(transaction.get_sender_public_key())
+                if self.blockchain.get_balance(sender_address) < transaction.get_amount():
                     bad_transactions.append(transaction)
-                else:
-                    #TODO Check signature
-                    pass
+                elif not transaction.verify_signature():
+                    bad_transactions.append(transaction)
             return bad_transactions
 
 
