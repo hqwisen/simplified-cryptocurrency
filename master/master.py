@@ -27,13 +27,27 @@ class Master:
             """
 
             bad_transactions = []
-
+            senders_balance = dict()
             for transaction in block.get_transactions():
-                sender_address = Address.generate_address(transaction.get_sender_public_key())
-                if self.blockchain.get_balance(sender_address) < transaction.get_amount():
+                if transaction.verify_signature():
+                    sender_address = Address.generate_address(transaction.get_sender_public_key())
+                    amount = transaction.get_amount()
+                    receiver_address = transaction.get_receiver()
+                    if sender_address not in senders_balance:
+                        senders_balance[sender_address] = self.blockchain.get_balance(sender_address)
+
+                    if senders_balance[sender_address] >= amount:
+                        senders_balance[sender_address] -= amount
+                        if receiver_address not in senders_balance:
+                            senders_balance[receiver_address] = self.blockchain.get_balance(receiver_address)
+                        senders_balance[receiver_address] += amount
+
+                    else:
+                        bad_transactions.append(transaction)
+
+                else:
                     bad_transactions.append(transaction)
-                elif not transaction.verify_signature():
-                    bad_transactions.append(transaction)
+
             return bad_transactions
 
 
