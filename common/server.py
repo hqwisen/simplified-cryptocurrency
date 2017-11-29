@@ -23,15 +23,14 @@ class Server:
     def add_blocks(self, blocks):
         self.blockchain.add_blocks(blocks)
 
-    def verify_block(self, block):
+    def verify_hash(self, block):
         """
-        Verify if the block data correspond to the current state of the blockchain.
-        Verify that the hash of the new block match the current blockchain state.
-        It does NOT verify the transaction of the block
+        Verify if the block can be added at the end of the blockchain,
+        Using the hashes of the last block, and the given block.
+        It does NOT verify the transaction of the block.
         """
-        is_valid = True
         # TODO implement verify hash
-        return is_valid
+        return True
 
     def blockchain_size(self):
         return len(self.blockchain)

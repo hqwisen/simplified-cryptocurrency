@@ -28,7 +28,7 @@ class Master:
 
             bad_transactions = []
             senders_balance = dict()
-            for transaction in block.get_transactions():
+            for transaction in block.transactions:
                 if transaction.verify_signature():
                     sender_address = Address.generate_address(transaction.get_sender_public_key())
                     amount = transaction.get_amount()

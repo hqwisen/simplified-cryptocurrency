@@ -35,11 +35,11 @@ class Relay:
             return None
 
         def update_blockchain(self, block):
-            is_valid = self.verify_block(block)
+            is_valid = self.verify_hash(block)
             if is_valid:
                 self.add_block(block)
-                for transaction in block.get_transactions():
-                    logger.debug("Start removal of %s" % transaction.hash)
+                for transaction in block.transactions:
+                    logger.debug("Start removal TX of %s" % transaction.hash)
                     self.remove_transaction(transaction)
             return is_valid
 

@@ -87,7 +87,7 @@ class Blockchain:
     def get_balance(self, address):
         balance = 0
         for block in self.blocks:
-            for transaction in block.get_transactions():
+            for transaction in block.transactions:
                 if Address.generate_address(transaction.get_sender_public_key()) == address:
                     balance -= transaction.amount
                 elif transaction.receiver == address:
@@ -123,10 +123,11 @@ class Block:
     def __init__(self, header="", nonce=""):
         self.header = header
         self.nonce = nonce
-        self.transactions = list()
+        self.__transactions = list()
 
-    def get_transactions(self):
-        return self.transactions
+    @property
+    def transactions(self):
+        return self.__transactions
 
     def add_transaction(self, transaction):
         self.transactions.append(transaction)
