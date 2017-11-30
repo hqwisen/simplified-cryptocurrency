@@ -242,7 +242,7 @@ class Transaction:
 
     def generate_hash(self):
         self.hash = SHA256.new(bytes(self.receiver, ENCODING) +
-                               bytes(self.amount, ENCODING) +
+                               bytes(self.amount) +
                                bytes(str(self.timestamp), ENCODING) +
                                self.sender_public_key)
 
