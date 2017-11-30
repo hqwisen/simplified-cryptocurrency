@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <main role="main" class="col-sm-9 ml-sm-auto col-md-10 pt-3">
+    <h1>Create new address</h1>
+      <form class="form-horizontal" action="" method="post" name="create_address">
+        {{ form.hidden_tag() }}
+          <div class="control-group">
+            <label class="control-label" for="receiver">Password</label>
+            <div class="controls">
+               {{ form.password(size=81) }}
+             </div>
+             <ul class=errors>
+              {% for err in form.password.errors %}
+                <li>{{ err }}</li>
+              {% endfor %}
+              </ul>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="amount">Label (optionnal)</label>
+            <div class="controls">
+               {{ form.label }}
+             </div>
+              <ul class=errors>
+              {% for err in form.label.errors %}
+                <li>{{ err }}</li>
+              {% endfor %}
+              </ul>
+          </div>
+        <button class="btn btn-large btn-primary" type="submit">Create address</button>
+      </form>
+  </main>
+{% endblock %}
