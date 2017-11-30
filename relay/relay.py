@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 class RelayError(Exception):
     pass
 
-class Relay:
 
+class Relay:
     class __Relay(Server):
         def __init__(self):
             super(Relay.__Relay, self).__init__()
@@ -35,15 +35,28 @@ class Relay:
             return None
 
         def update_blockchain(self, block):
-            is_valid = self.verify_block(block)
+            """
+            Update the blockchain by adding the new block.
+            If the block cannot be added to the blockchain,
+            because the hashes do not fit, it returns False.
+            Return True if everything went fine.
+            :param block: block to be added
+            :return: True if added, False otherwise.
+            """
+            is_valid = self.verify_hash(block)
             if is_valid:
                 self.add_block(block)
-                for transaction in block.get_transactions():
-                    logger.debug("Start removal of %s" % transaction.hash)
+                for transaction in block.transactions:
+                    logger.debug("Start removal TX of %s" % transaction.hash)
                     self.remove_transaction(transaction)
             return is_valid
 
         def remove_transaction(self, transaction):
+            """
+            Remove transaction from the relay list.
+            :param transaction: transaction to be removed
+            :return: None
+            """
             i = 0
             while i < len(self.transactions):
                 if transaction.hash == self.transactions[i].hash:
@@ -53,6 +66,7 @@ class Relay:
                 i += 1
 
     instance = None
+
     def __init__(self):
         if not Relay.instance:
             Relay.instance = Relay.__Relay()

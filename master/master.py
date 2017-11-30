@@ -1,5 +1,5 @@
 from common.server import Server
-from common.models import Block, Blockchain
+from common.models import Block, Blockchain, Address
 
 
 class Master:
@@ -11,9 +11,9 @@ class Master:
             """
             Add the block from the parameter if it's a valid one,
             otherwise reject it and return the bad transactions that
-            made it invalid
+            made it invalid.
             """
-            hash_verify = self.verify_block(block)
+            hash_verify = self.verify_hash(block)
             results = self.verify_transactions(block)
             if hash_verify and len(results) == 0:
                 self.add_block(block)
@@ -21,25 +21,29 @@ class Master:
             else:
                 return results
 
-        def verify_transactions(block):
+        def verify_transactions(self, block):
             """
             Return a list of invalid transactions
             """
-
+            # TODO write tests method to verify this.
             bad_transactions = []
-
-            for transaction in block.get_transactions():
-                sender = transaction.get_sender()
-                if self.blockchain.get_balance(sender) < transaction.get_amount():
-                    bad_transactions.append(transaction)
+            senders_balance = dict()
+            for transaction in block.transactions:
+                if transaction.verify_signature():
+                    sender_address = Address.generate_address(transaction.sender_public_key)
+                    if sender_address not in senders_balance:
+                        senders_balance[sender_address] = self.blockchain.get_balance(sender_address)
+                    if senders_balance[sender_address] >= transaction.amount:
+                        senders_balance[sender_address] -= transaction.amount
+                        if transaction.receiver not in senders_balance:
+                            senders_balance[transaction.receiver] = self.blockchain.get_balance(transaction.receiver)
+                        senders_balance[transaction.receiver] += transaction.amount
+                    else:
+                        bad_transactions.append(transaction)
                 else:
-                    #TODO Check signature
-                    pass
+                    bad_transactions.append(transaction)
+
             return bad_transactions
-
-
-
-
 
     instance = None
 

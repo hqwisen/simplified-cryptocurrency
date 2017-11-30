@@ -1,32 +1,41 @@
 from common.models import Blockchain
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Server:
+    """
+    Basic class implementing a server node that handle
+    the blockchain.
+    """
 
     def __init__(self):
-        self.blockchain = Blockchain()
+        self.__blockchain = Blockchain()
 
     def add_block(self, block):
         self.blockchain.add_block(block)
 
     def part_of(self, start, end):
+        logger.debug("Requesting part of blockchain (%s, %s)" % (start, end))
         return self.blockchain.part_of(start, end)
-
-    def get_blockchain(self):
-        return self.blockchain
 
     def add_blocks(self, blocks):
         self.blockchain.add_blocks(blocks)
 
-    def verify_block(self, block):
+    def verify_hash(self, block):
         """
-        Verify if the block data correspond to the current state of the blockchain.
-        Verify that the hash of the new block match the current blockchain state.
-        It does NOT verify the transaction of the block
+        Verify if the block can be added at the end of the blockchain,
+        Using the hashes of the last block, and the given block.
+        It does NOT verify the transaction of the block.
         """
-        is_valid = True
         # TODO implement verify hash
-        return is_valid
+        return True
 
+    @property
+    def blockchain(self):
+        return self.__blockchain
+
+    @property
     def blockchain_size(self):
         return len(self.blockchain)

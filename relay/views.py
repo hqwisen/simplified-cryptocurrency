@@ -6,53 +6,58 @@ from rest_framework.views import APIView
 
 from common import client
 from common.models import Block, Transaction, ParseException, Blockchain
-from common.views import BlockchainGetView
+from common.views import BlockchainGETView
 from relay.relay import Relay, RelayError
-
 
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
 
-class BlockchainView(BlockchainGetView):
-
+class BlockchainView(BlockchainGETView):
     def post(self, request):
-        server = self.get_server()
+        # TODO make sure that only master node can request this
         try:
             block = Block.parse(request.data)
-            updated = server.update_blockchain(block)
-            if not updated:
-                last_index = server.blockchain_size() - 1
-                response = client.get(settings.MASTER_IP,
-                                      'blockchain?start=%d&end=%d' % (last_index, -1))
-                blockchain = Blockchain.parse(response.data)
-                server.add_blocks(blockchain.get_blocks())
-            return Response(status=status.HTTP_201_CREATED)
         except ParseException as e:
-            return Response(str(e), status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response({'errors': str(e)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        logger.debug("Adding block '%s' to blockchain" % block.header)
+        updated = self.server.update_blockchain(block)
+        # TODO test when the blockchain is not updated
+        if not updated:
+            logger.debug("Blockchain not up to date, requesting part of.")
+            response = client.get(settings.MASTER_IP,
+                                  'blockchain?start=%d' % (self.server.blockchain_size - 1))
+            blockchain = Blockchain.parse(response.data)
+            self.server.add_blocks(blockchain.blocks)
+        return Response(status=status.HTTP_201_CREATED)
 
-    def get_server(self):
+    @property
+    def server(self):
         return Relay()
 
 
 class BlockView(APIView):
-
     def post(self, request):
-        response = client.post(settings.MASTER_IP, 'blockchain', request.data)
+        logger.debug("Receive a block, forwarding to master.")
+        response = client.post(settings.MASTER_IP, 'block', request.data)
         # TODO should we send an anwser base on master node response ?
-        return Response("Successfully received", status=status.HTTP_200_OK)
-
+        # TODO Careful to not return sensitive info to miner
+        # TODO it is not a good idea to return master response to miner
+        # TODO include Basic Relay Credentials in post request
+        # return Response("Successfully received", status=status.HTTP_200_OK)
+        return response
 
 class TransactionView(APIView):
-
     def get(self, request):
         server = Relay()
-        exclude =  request.data['exclude_hash'] if 'exclude_hash' in request.data else []
-        if 'exclude_hash' not in request.data:
-            logger.info("'exclude_hash' not in request")
+        if 'exclude_hash' in request.data:
+            exclude = request.data['exclude_hash']
+        else:
+            exclude = []
+            logger.debug("'exclude_hash' not in request.")
         transaction = server.get_transaction(exclude)
-        if transaction != None:
+        if transaction is not None:
             return Response(Transaction.serialize(transaction),
                             status=status.HTTP_200_OK)
         else:
@@ -60,6 +65,13 @@ class TransactionView(APIView):
                             status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
+        """
+        Add a new transaction to the relay transactions list.
+        If the transaction.hash is already in the list,
+        it will not be added and return 406
+        :param request:
+        :return: 201 if transaction added, 406 otherwise (hash already exist)
+        """
         server = Relay()
         try:
             transaction = Transaction.parse(request.data)
@@ -69,6 +81,21 @@ class TransactionView(APIView):
             return Response(str(e), status=status.HTTP_406_NOT_ACCEPTABLE)
 
     def delete(self, request):
+        """
+        Delete transactions receive in request.data['bad_transactions']
+        This is usually done when masternode receive an incorrect block
+        and reject some transaction.
+        :param request:
+        :return: 2OO (OK)
+        """
+        # TODO make sure that only masters can request deletes
         server = Relay()
-        for transaction in request.data['bad_transactions']:
+        for tx_data in request.data['bad_transactions']:
+            try:
+                transaction = Transaction.parse(tx_data)
+            except ParseException as e:
+                logger.warning("Cannot remove transaction: %s" % (str(e)))
+            else:
+                logger.debug("Removing transaction %s " % transaction.hash)
             server.remove_transaction(transaction)
+        return Response(status=status.HTTP_200_OK)

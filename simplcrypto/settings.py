@@ -25,7 +25,7 @@ SECRET_KEY = 't+t@8niogs68+x%79qd%ph_v^4b(dzwfb$(*j0^vjjo%t_n4(8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -167,9 +167,22 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'common': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'master': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     },
 }
 
-MASTER_IP = "localhost:8000"
+MASTER_IP = "http://localhost:8000/master"
 
-RELAY_IP = ["localhost:8000"]
+RELAY_IP = ["http://localhost:8001/relay"]
+
+# Filter MasterNode access with credentials
+RELAY_CREDENTIALS = {'username': 'relay', 'password': '12345'}

@@ -1,6 +1,6 @@
 django
 djangorestframework
-httplib2
+requests
 pycryptodome
 Flask
 Flask-WTF
