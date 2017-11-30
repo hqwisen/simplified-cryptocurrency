@@ -19,23 +19,31 @@
             {% endfor %}
           {% endif %}
         {% endwith %}
-        <form action="" method="post" name="make_transaction">
+        <form class="form-horizontal" action="" method="post" name="make_transaction">
         {{ form.hidden_tag() }}
-        <p>
-            Enter the receiver address: {{ form.receiver(size=81) }}<br>
-            Enter the amount: {{ form.amount }}<br>
-            {% if (form.receiver.errors or form.amount.errors) %}
-              <ul class=errors>
+          <div class="control-group">
+            <label class="control-label" for="receiver">Enter the receiver address:</label>
+            <div class="controls">
+               {{ form.receiver(size=81) }}
+             </div>
+             <ul class=errors>
               {% for err in form.receiver.errors %}
                 <li>{{ err }}</li>
               {% endfor %}
+              </ul>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="amount">Enter the amount:</label>
+            <div class="controls">
+               {{ form.amount }}
+             </div>
+              <ul class=errors>
               {% for err in form.amount.errors %}
                 <li>{{ err }}</li>
               {% endfor %}
               </ul>
-            {% endif %}
-        </p>
-        <p><input type="submit" value="Sign transaction"></p>
+          </div>
+        <button class="btn btn-large btn-primary" type="submit">Send transaction</button>
       </form>
     </main>
   {% endif %}
