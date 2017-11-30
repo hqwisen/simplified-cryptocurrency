@@ -242,7 +242,7 @@ class Transaction:
 
     def generate_hash(self):
         self.hash = SHA256.new(bytes(self.receiver, ENCODING) +
-                               bytes(self.amount) +
+                               bytes(str(self.amount), ENCODING) +
                                bytes(str(self.timestamp), ENCODING) +
                                self.sender_public_key)
 
@@ -273,7 +273,7 @@ class Address:
             address.public_key = keys[0]
             if Address.generate_address(address.public_key) != address.raw:
                 return None
-            address.private_key = keys[0]
+            address.private_key = keys[1]
             return address
 
     @staticmethod

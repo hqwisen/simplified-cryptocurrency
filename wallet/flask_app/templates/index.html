@@ -8,7 +8,35 @@
             Address: {{ current_address.raw }}
           </li>
         </ul>
-      <h1>Make transaction</h2>
+      <h1>Make transaction</h1>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                 {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+        <form action="" method="post" name="make_transaction">
+        {{ form.hidden_tag() }}
+        <p>
+            Enter the receiver address: {{ form.receiver(size=81) }}<br>
+            Enter the amount: {{ form.amount }}<br>
+            {% if (form.receiver.errors or form.amount.errors) %}
+              <ul class=errors>
+              {% for err in form.receiver.errors %}
+                <li>{{ err }}</li>
+              {% endfor %}
+              {% for err in form.amount.errors %}
+                <li>{{ err }}</li>
+              {% endfor %}
+              </ul>
+            {% endif %}
+        </p>
+        <p><input type="submit" value="Sign transaction"></p>
+      </form>
     </main>
   {% endif %}
 {% endblock %}
