@@ -6,7 +6,10 @@ sys.path.append(os.path.dirname(os.getcwd()))
 from wallet import Wallet
 from .forms import LoginForm
 
+WRONG_PASSWORD_ERROR = "Wrong password"
 SAVE_DIR = os.path.join((os.getcwd()), 'addresses')
+if not os.path.exists(SAVE_DIR):
+    os.makedirs(SAVE_DIR)
 
 def get_all_saved_addresses():
     return [file for file in os.listdir(SAVE_DIR) if os.path.isfile(os.path.join(SAVE_DIR, file))]
@@ -34,7 +37,7 @@ def login(label):
         if form.validate_on_submit():
             if wallet.log_in(str(form.password.data), str(label)):
                 return redirect('/')
-            error = "Wrong password"
+            error = WRONG_PASSWORD_ERROR
     return render_template('login.html', addresses=addresses, label=label, error=error, form=form)
 
 @app.route('/logout')

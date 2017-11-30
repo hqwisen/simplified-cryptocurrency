@@ -10,6 +10,7 @@ ENCODING = 'utf-8'
 SEPARATOR = b'\n+==============+\n'
 CRLF = b'\r\n'
 SAVE_DIR = 'addresses'
+SIGNATURE_MODE = 'fips-186-3'
 
 
 class ParseException(Exception):
@@ -247,7 +248,7 @@ class Transaction:
 
     def verify_signature(self):
         try:
-            verifier = DSS.new(DSA.import_key(self.sender_public_key), 'fips-186-3')
+            verifier = DSS.new(DSA.import_key(self.sender_public_key), SIGNATURE_MODE)
             verifier.verify(self.hash, self.signature)
             return True
         except ValueError:

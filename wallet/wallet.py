@@ -5,10 +5,7 @@ sys.path.append(os.path.dirname(os.getcwd())) # Since wallet isn't a Django app,
 from datetime import datetime
 from Crypto.Signature import DSS
 
-from common.models import Transaction, Address, DSA, ENCODING
-
-
-SIGNATURE_MODE = 'fips-186-3'
+from common.models import Transaction, Address, DSA, ENCODING, SIGNATURE_MODE
 
 
 class Wallet:
