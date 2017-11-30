@@ -1,5 +1,8 @@
 from common.models import Blockchain
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Server:
     """
@@ -14,8 +17,8 @@ class Server:
         self.blockchain.add_block(block)
 
     def part_of(self, start, end):
+        logger.debug("Requesting part of blockchain (%s, %s)" % (start, end))
         return self.blockchain.part_of(start, end)
-
 
     def add_blocks(self, blocks):
         self.blockchain.add_blocks(blocks)

@@ -31,8 +31,6 @@ class BlockchainGETView(APIView):
 
 
     def get(self, request):
-        if self.server is None:
-            raise Exception("Cannot instanciate server.")
         start = ViewUtils.parse_int_param(request.query_params, 'start')
         end = ViewUtils.parse_int_param(request.query_params, 'end')
         return Response(Blockchain.serialize(self.server.part_of(start, end)),

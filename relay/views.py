@@ -15,20 +15,22 @@ logger = logging.getLogger(__name__)
 
 
 class BlockchainView(BlockchainGETView):
-
     def post(self, request):
+        # TODO make sure that only master node can request this
         try:
             block = Block.parse(request.data)
-            updated = self.server.update_blockchain(block)
-            # TODO test when the blockchain is not updated
-            if not updated:
-                response = client.get(settings.MASTER_IP,
-                                      'blockchain?start=%d' % (self.server.blockchain_size - 1))
-                blockchain = Blockchain.parse(response.data)
-                self.server.add_blocks(blockchain.blocks)
-            return Response(status=status.HTTP_201_CREATED)
         except ParseException as e:
             return Response({'errors': str(e)}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        logger.debug("Adding block '%s' to blockchain" % block.header)
+        updated = self.server.update_blockchain(block)
+        # TODO test when the blockchain is not updated
+        if not updated:
+            logger.debug("Blockchain not up to date, requesting part of.")
+            response = client.get(settings.MASTER_IP,
+                                  'blockchain?start=%d' % (self.server.blockchain_size - 1))
+            blockchain = Blockchain.parse(response.data)
+            self.server.add_blocks(blockchain.blocks)
+        return Response(status=status.HTTP_201_CREATED)
 
     @property
     def server(self):
@@ -37,6 +39,7 @@ class BlockchainView(BlockchainGETView):
 
 class BlockView(APIView):
     def post(self, request):
+        logger.debug("Receive a block, forwarding to master.")
         response = client.post(settings.MASTER_IP, 'blockchain', request.data)
         # TODO should we send an anwser base on master node response ?
         return Response("Successfully received", status=status.HTTP_200_OK)
@@ -59,6 +62,13 @@ class TransactionView(APIView):
                             status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
+        """
+        Add a new transaction to the relay transactions list.
+        If the transaction.hash is already in the list,
+        it will not be added and return 406
+        :param request:
+        :return: 201 if transaction added, 406 otherwise (hash already exist)
+        """
         server = Relay()
         try:
             transaction = Transaction.parse(request.data)
@@ -68,7 +78,21 @@ class TransactionView(APIView):
             return Response(str(e), status=status.HTTP_406_NOT_ACCEPTABLE)
 
     def delete(self, request):
+        """
+        Delete transactions receive in request.data['bad_transactions']
+        This is usually done when masternode receive an incorrect block
+        and reject some transaction.
+        :param request:
+        :return: 2OO (OK)
+        """
         # TODO make sure that only masters can request deletes
         server = Relay()
-        for transaction in request.data['bad_transactions']:
+        for tx_data in request.data['bad_transactions']:
+            try:
+                transaction = Transaction.parse(tx_data)
+            except ParseException as e:
+                logger.warning("Cannot remove transaction: %s" % (str(e)))
+            else:
+                logger.debug("Removing transaction %s " % transaction.hash)
             server.remove_transaction(transaction)
+        return Response(status=status.HTTP_200_OK)

@@ -121,9 +121,17 @@ class Block:
         return data
 
     def __init__(self, header="", nonce=""):
-        self.header = header
-        self.nonce = nonce
+        self.__header = header
+        self.__nonce = nonce
         self.__transactions = list()
+
+    @property
+    def header(self):
+        return self.__header
+
+    @property
+    def nonce(self):
+        return self.__nonce
 
     @property
     def transactions(self):

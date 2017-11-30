@@ -10,6 +10,10 @@ from common.views import BlockchainGETView
 from master.auth import RelayAuthentication
 from master.master import Master
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 class BlockchainView(BlockchainGETView):
     authentication_classes = (RelayAuthentication,)
@@ -39,25 +43,31 @@ class BlockView(APIView):
             block_data = request.data['block']
             block = Block.parse(block_data)
         except ParseException as e:
-            return Response({"Title": "There is a problem"},
-                                status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response({"errors": str(e)},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
+
         bad_transactions = self.server.update_blockchain(block)
         if len(bad_transactions) == 0:  # block is valid
+            logger.debug("Block '%s' successfully added" % block.header)
+            for relay_ip in settings.RELAY_IP:
+                logger.debug("Sending block '%s' to relay %s" % (block.header, relay_ip))
+                client.post(relay_ip, 'block', block_data)
+            # TODO add reward to miner using request.data['miner_address']
+            # client.post(relay_ip, 'transactions', transaction)
             response = Response({"detail": "Block successfully added!"},
                                 status=status.HTTP_201_CREATED)
-            for relay_ip in settings.RELAY_IP:
-                client.post(relay_ip, 'block', block_data)
-        # TODO add reward to miner using request.data['miner_address']
-        # client.post(relay_ip, 'transactions', transaction)
         else:
+            logger.debug("Block '%s' can NOT be added (bad TXs)." % block.header)
             data = {'bad_transactions': []}
             for transaction in bad_transactions:
+                logger.debug("Bad TX '%s'" % transaction.hash)
                 data['bad_transactions'].append(Transaction.serialize(transaction))
-            response = Response({"errors": "Bad transactions where found in new block.",
-                                 "data": data},
-                                status=status.HTTP_406_NOT_ACCEPTABLE)
             # Send to all relays bad TXs, since the miner can request
             # transactions from any relay
             for relay_ip in settings.RELAY_IP:
+                logger.debug("Sending bad TXs to relay %s" % (block.header, relay_ip))
                 client.delete(relay_ip, 'transactions', data)
+            response = Response({"errors": "Bad transactions where found in new block.",
+                                 "data": data},
+                                status=status.HTTP_406_NOT_ACCEPTABLE)
         return response
