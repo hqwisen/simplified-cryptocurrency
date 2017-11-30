@@ -63,8 +63,7 @@ h1 {
   padding-bottom: 1.5rem;
 }
 
-.form-horizontal .control-label{
-  /* text-align:right; */
+.form-horizontal .control-label {
   text-align:left;
   background-color:#ffa;
 }

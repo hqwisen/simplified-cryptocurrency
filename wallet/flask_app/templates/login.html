@@ -3,23 +3,20 @@
 {% block content %}
   <main role="main" class="col-sm-9 ml-sm-auto col-md-10 pt-3">
     <h1>Log in</h1>
-      <form action="" method="post" name="login">
+      <form class="form-horizontal" action="" method="post" name="login">
         {{ form.hidden_tag() }}
-        <p>
-            Please enter your password:<br>
-            {{ form.password(size=30) }}<br>
-            {% if (form.password.errors or error) %}
-              <ul class=errors>
+          <div class="control-group">
+            <label class="control-label" for="receiver">Password</label>
+            <div class="controls">
+               {{ form.password(size=40) }}
+             </div>
+             <ul class="errors">
               {% for err in form.password.errors %}
                 <li>{{ err }}</li>
               {% endfor %}
-              {% if error %}
-                <li>{{ error }}</li>
-              {% endif %}
               </ul>
-            {% endif %}
-        </p>
-        <p><input type="submit" value="Log in"></p>
+          </div>
+        <button class="btn btn-large btn-primary" type="submit">Log in</button>
       </form>
   </main>
 {% endblock %}

@@ -8,7 +8,7 @@
             Address: {{ current_address.raw }}
           </li>
         </ul>
-      <h1>Make transaction</h1>
+      <h1>New transaction</h1>
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
@@ -22,22 +22,22 @@
         <form class="form-horizontal" action="" method="post" name="make_transaction">
         {{ form.hidden_tag() }}
           <div class="control-group">
-            <label class="control-label" for="receiver">Enter the receiver address:</label>
+            <label class="control-label" for="receiver">Receiver's address</label>
             <div class="controls">
                {{ form.receiver(size=81) }}
              </div>
-             <ul class=errors>
+             <ul class="errors">
               {% for err in form.receiver.errors %}
                 <li>{{ err }}</li>
               {% endfor %}
               </ul>
           </div>
           <div class="control-group">
-            <label class="control-label" for="amount">Enter the amount:</label>
+            <label class="control-label" for="amount">Amount</label>
             <div class="controls">
                {{ form.amount }}
              </div>
-              <ul class=errors>
+              <ul class="errors">
               {% for err in form.amount.errors %}
                 <li>{{ err }}</li>
               {% endfor %}
