@@ -45,11 +45,13 @@ class BlockView(APIView):
 class TransactionView(APIView):
     def get(self, request):
         server = Relay()
-        exclude = request.data['exclude_hash'] if 'exclude_hash' in request.data else []
-        if 'exclude_hash' not in request.data:
-            logger.info("'exclude_hash' not in request")
+        if 'exclude_hash' in request.data:
+            exclude = request.data['exclude_hash']
+        else:
+            exclude = []
+            logger.debug("'exclude_hash' not in request.")
         transaction = server.get_transaction(exclude)
-        if transaction != None:
+        if transaction is not None:
             return Response(Transaction.serialize(transaction),
                             status=status.HTTP_200_OK)
         else:
@@ -66,6 +68,7 @@ class TransactionView(APIView):
             return Response(str(e), status=status.HTTP_406_NOT_ACCEPTABLE)
 
     def delete(self, request):
+        # TODO make sure that only masters can request deletes
         server = Relay()
         for transaction in request.data['bad_transactions']:
             server.remove_transaction(transaction)

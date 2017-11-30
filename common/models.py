@@ -164,21 +164,36 @@ class Transaction:
 
     def __init__(self, receiver=str(), amount=0,
                  timestamp=str(), sender_public_key=str()):
-        self.receiver = receiver
-        self.amount = amount
-        self.timestamp = timestamp
-        self.hash = str()
-        self.sender_public_key = sender_public_key
-        self.signature = str()
+        self.__receiver = receiver
+        self.__amount = amount
+        self.__timestamp = timestamp
+        self.__hash = str()
+        self.__sender_public_key = sender_public_key
+        self.__signature = str()
 
-    def get_receiver(self):
-        return self.receiver
+    @property
+    def receiver(self):
+        return self.__receiver
 
-    def get_amount(self):
-        return self.amount
+    @property
+    def amount(self):
+        return self.__amount
 
-    def get_sender_public_key(self):
-        return self.sender_public_key
+    @property
+    def timestamp(self):
+        return self.__timestamp
+
+    @property
+    def hash(self):
+        return self.__hash
+
+    @property
+    def sender_public_key(self):
+        return self.__sender_public_key
+
+    @property
+    def signature(self):
+        return self.__signature
 
     def generate_hash(self):
         self.hash = SHA256.new(bytes(self.receiver, ENCODING) +

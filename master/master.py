@@ -1,5 +1,5 @@
 from common.server import Server
-from common.models import Block, Blockchain
+from common.models import Block, Blockchain, Address
 
 
 class Master:
@@ -11,7 +11,7 @@ class Master:
             """
             Add the block from the parameter if it's a valid one,
             otherwise reject it and return the bad transactions that
-            made it invalid
+            made it invalid.
             """
             hash_verify = self.verify_hash(block)
             results = self.verify_transactions(block)
@@ -21,30 +21,25 @@ class Master:
             else:
                 return results
 
-        def verify_transactions(block):
+        def verify_transactions(self, block):
             """
             Return a list of invalid transactions
             """
-
+            # TODO write tests method to verify this.
             bad_transactions = []
             senders_balance = dict()
             for transaction in block.transactions:
                 if transaction.verify_signature():
-                    sender_address = Address.generate_address(transaction.get_sender_public_key())
-                    amount = transaction.get_amount()
-                    receiver_address = transaction.get_receiver()
+                    sender_address = Address.generate_address(transaction.sender_public_key)
                     if sender_address not in senders_balance:
                         senders_balance[sender_address] = self.blockchain.get_balance(sender_address)
-
-                    if senders_balance[sender_address] >= amount:
-                        senders_balance[sender_address] -= amount
-                        if receiver_address not in senders_balance:
-                            senders_balance[receiver_address] = self.blockchain.get_balance(receiver_address)
-                        senders_balance[receiver_address] += amount
-
+                    if senders_balance[sender_address] >= transaction.amount:
+                        senders_balance[sender_address] -= transaction.amount
+                        if transaction.receiver not in senders_balance:
+                            senders_balance[transaction.receiver] = self.blockchain.get_balance(transaction.receiver)
+                        senders_balance[transaction.receiver] += transaction.amount
                     else:
                         bad_transactions.append(transaction)
-
                 else:
                     bad_transactions.append(transaction)
 
