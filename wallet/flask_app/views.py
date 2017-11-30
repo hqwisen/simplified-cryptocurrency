@@ -20,10 +20,14 @@ def refresh():
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', addresses=addresses, current_address=wallet.current_address)
+    current_address = wallet.current_address
+    label = current_address.label if current_address else None
+    return render_template('index.html', addresses=addresses, current_address=current_address, label=label)
 
 @app.route('/login/<label>', methods=['GET', 'POST'])
 def login(label):
+    if wallet.current_address and wallet.current_address.label == label:
+        return redirect('/')
     form = LoginForm()
     error = None
     if request.method == 'POST':
@@ -31,7 +35,7 @@ def login(label):
             if wallet.log_in(str(form.password.data), str(label)):
                 return redirect('/')
             error = "Wrong password"
-    return render_template('login.html', addresses=addresses, error=error, form=form)
+    return render_template('login.html', addresses=addresses, label=label, error=error, form=form)
 
 @app.route('/logout')
 def logout():
