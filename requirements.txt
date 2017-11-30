@@ -2,3 +2,5 @@ django
 djangorestframework
 httplib2
 pycryptodome
+Flask
+Flask-WTF

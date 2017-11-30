@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+  {% if current_address %}
+    <main role="main" class="col-sm-9 ml-sm-auto col-md-10 pt-3">
+      <h1>Overview</h1>
+        <ul>
+          <li>
+            Address: {{ current_address.raw }}
+          </li>
+        </ul>
+      <h1>Make transaction</h2>
+    </main>
+  {% endif %}
+{% endblock %}

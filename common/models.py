@@ -169,6 +169,8 @@ class Address:
             keys = cipher.decrypt(cipher_text).split(SEPARATOR)
             address.label = label
             address.public_key = keys[0]
+            if Address.generate_address(address.public_key) != address.raw:
+                return None
             address.private_key = keys[0]
             return address
 

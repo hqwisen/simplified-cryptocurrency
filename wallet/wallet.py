@@ -18,6 +18,10 @@ class Wallet:
 
     def log_in(self, password, label):
         self.current_address = Address.load(password, label)
+        return self.current_address != None
+
+    def log_out(self):
+        self.current_address = None
 
     def sign_up(self, password, address_label=''):
         self.current_address = Address.create(password, address_label)
