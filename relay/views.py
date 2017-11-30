@@ -40,10 +40,13 @@ class BlockchainView(BlockchainGETView):
 class BlockView(APIView):
     def post(self, request):
         logger.debug("Receive a block, forwarding to master.")
-        response = client.post(settings.MASTER_IP, 'blockchain', request.data)
+        response = client.post(settings.MASTER_IP, 'block', request.data)
         # TODO should we send an anwser base on master node response ?
-        return Response("Successfully received", status=status.HTTP_200_OK)
-
+        # TODO Careful to not return sensitive info to miner
+        # TODO it is not a good idea to return master response to miner
+        # TODO include Basic Relay Credentials in post request
+        # return Response("Successfully received", status=status.HTTP_200_OK)
+        return response
 
 class TransactionView(APIView):
     def get(self, request):

@@ -25,8 +25,9 @@ class BlockchainView(BlockchainGETView):
 
 
 class BlockView(APIView):
-    authentication_classes = (RelayAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    # FIXME Permission commented because need to add credentials in relay.views POST block
+    # authentication_classes = (RelayAuthentication,)
+    # permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         """
@@ -41,9 +42,14 @@ class BlockView(APIView):
         try:
             # request contains the block, and the address of the miner
             block_data = request.data['block']
+            print(request.data)
+
             block = Block.parse(block_data)
+        except KeyError:
+            return Response({"errors": "No block given."},
+                            status=status.HTTP_406_NOT_ACCEPTABLE)
         except ParseException as e:
-            return Response({"errors": str(e)},
+            return Response({"errors": "%s" % e},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
 
         bad_transactions = self.server.update_blockchain(block)
@@ -65,9 +71,13 @@ class BlockView(APIView):
             # Send to all relays bad TXs, since the miner can request
             # transactions from any relay
             for relay_ip in settings.RELAY_IP:
-                logger.debug("Sending bad TXs to relay %s" % (block.header, relay_ip))
+                logger.debug("Sending bad TXs to relay %s" % relay_ip)
                 client.delete(relay_ip, 'transactions', data)
             response = Response({"errors": "Bad transactions where found in new block.",
                                  "data": data},
                                 status=status.HTTP_406_NOT_ACCEPTABLE)
         return response
+
+    @property
+    def server(self):
+        return Master()

@@ -129,9 +129,17 @@ class Block:
     def header(self):
         return self.__header
 
+    @header.setter
+    def header(self, header):
+        self.__header = header
+
     @property
     def nonce(self):
         return self.__nonce
+
+    @nonce.setter
+    def nonce(self, nonce):
+        self.__nonce = nonce
 
     @property
     def transactions(self):
@@ -152,8 +160,12 @@ class Transaction:
     def parse(data):
         transaction = Transaction()
         try:
-            for attr in transaction.__dict__.keys():
-                transaction.__dict__[attr] = data[attr]
+            transaction.receiver = data['receiver']
+            transaction.amount = data['amount']
+            transaction.hash = data['hash']
+            transaction.sender_public_key = data['sender_public_key']
+            transaction.signature = data['signature']
+            transaction.timestamp = data['timestamp']
         except KeyError as e:
             raise ParseException("Attribute %s was not given "
                                  "while parsing transaction." % (e))
@@ -183,25 +195,49 @@ class Transaction:
     def receiver(self):
         return self.__receiver
 
+    @receiver.setter
+    def receiver(self, receiver):
+        self.__receiver = receiver
+
     @property
     def amount(self):
         return self.__amount
+
+    @amount.setter
+    def amount(self, amount):
+        self.__amount = amount
 
     @property
     def timestamp(self):
         return self.__timestamp
 
+    @timestamp.setter
+    def timestamp(self, timestamp):
+        self.__timestamp = timestamp
+
     @property
     def hash(self):
         return self.__hash
+
+    @hash.setter
+    def hash(self, hash):
+        self.__hash = hash
 
     @property
     def sender_public_key(self):
         return self.__sender_public_key
 
+    @sender_public_key.setter
+    def sender_public_key(self, sender_public_key):
+        self.__sender_public_key = sender_public_key
+
     @property
     def signature(self):
         return self.__signature
+
+    @signature.setter
+    def signature(self, signature):
+        self.__signature = signature
 
     def generate_hash(self):
         self.hash = SHA256.new(bytes(self.receiver, ENCODING) +
@@ -210,8 +246,8 @@ class Transaction:
                                self.sender_public_key)
 
     def verify_signature(self):
-        verifier = DSS.new(DSA.import_key(self.sender_public_key), 'fips-186-3')
         try:
+            verifier = DSS.new(DSA.import_key(self.sender_public_key), 'fips-186-3')
             verifier.verify(self.hash, self.signature)
             return True
         except ValueError:

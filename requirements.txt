@@ -1,4 +1,4 @@
 django
 djangorestframework
-httplib2
+requests
 pycryptodome
