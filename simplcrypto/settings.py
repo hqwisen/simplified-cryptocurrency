@@ -180,9 +180,9 @@ LOGGING = {
     },
 }
 
-MASTER_IP = "http://localhost:8001/master"
+MASTER_IP = "http://localhost:8000/master"
 
-RELAY_IP = ["http://localhost:8000/relay"]
+RELAY_IP = ["http://localhost:8001/relay"]
 
 # Filter MasterNode access with credentials
 RELAY_CREDENTIALS = {'username': 'relay', 'password': '12345'}
