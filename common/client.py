@@ -5,7 +5,7 @@ import rest_framework
 
 
 def get(server, url, data=None):
-    return requests_to_django_response(requests.get(server + '/' + url))
+    return requests_to_django_response(requests.get(server + '/' + url, json=data))
 
 
 def post(server, url, data):
@@ -13,17 +13,20 @@ def post(server, url, data):
 
 
 def delete(server, url, data):
-    return requests_to_django_response(requests.delete(server + '/' + url))
+    return requests_to_django_response(requests.delete(server + '/' + url, json=data))
 
 
 def requests_to_django_response(requests_response):
-     try:
+    try:
         data = requests_response.json(),
-     except JSONDecodeError:
-         data = requests_response.content
-     return rest_framework.response.Response(
+    except JSONDecodeError:
+        data = requests_response.content
+    response = rest_framework.response.Response(
         status=requests_response.status_code,
         data=data,
-        headers=requests_response.headers,
-        content_type=requests_response.headers['Content-Type']
+        headers=requests_response.headers
     )
+    # FIXME should we include content-type in django response ?
+    # if 'Content_Type' in requests_response.headers['Content-Type']:
+    #     response.content_type = requests_response.headers['Content-Type']
+    return response
