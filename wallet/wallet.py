@@ -6,7 +6,7 @@ from datetime import datetime
 from Crypto.Signature import DSS
 import ast
 
-from common.models import Transaction, Address, DSA, ENCODING, SIGNATURE_MODE
+from common.models import Transaction, Address, DSA, ENCODING, SIGNATURE_MODE, Blockchain
 
 RELAY_PORT = 8000
 RELAY_IP = "127.0.0.1"
@@ -40,4 +40,4 @@ class Wallet:
         transaction.signature = signer.sign(transaction.hash)
 
     def get_blockchain(self) :
-        ast.literal_eval(str(requests.get('http://{}:{}/{}'.format(RELAY_IP, RELAY_PORT, BLOCKCHAIN_ENDPOINT)).content, ENCODING))
+        return Blockchain.parse(ast.literal_eval(str(requests.get('http://{}:{}/{}'.format(RELAY_IP, RELAY_PORT, BLOCKCHAIN_ENDPOINT)).content, ENCODING)))
