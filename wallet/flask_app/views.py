@@ -7,7 +7,8 @@ from wallet import Wallet, Transaction
 from .forms import LoginForm, MakeTransactionForm, CreateAddressForm
 
 WRONG_PASSWORD_ERROR = 'Wrong password'
-SIGN_TRANSACTION_SUCCESS = 'Transaction succesfully signed and sent'
+SIGN_TRANSACTION_SUCCESS = 'Transaction successfully signed and sent'
+TRANSACTION_TO_SELF_ERROR = 'Receiver and sender addresses must be different'
 GREEN_ALERT = 'success'
 POST = 'POST'
 GET = 'GET'
@@ -27,8 +28,9 @@ def index():
     label = current_address.label if current_address else None
     form = MakeTransactionForm()
     if form.validate_on_submit():
+        if form.receiver.data == wallet.current_address.raw :
+            return render_template('index.html', addresses=get_all_saved_addresses(), current_address=current_address, label=label, error=TRANSACTION_TO_SELF_ERROR, form=form)
         transaction = wallet.create_transaction(form.receiver.data, form.amount.data)
-        print(Transaction.serialize(transaction))
         flash(SIGN_TRANSACTION_SUCCESS, GREEN_ALERT)
         return redirect('/')
     return render_template('index.html', addresses=get_all_saved_addresses(), current_address=current_address, label=label, form=form)
