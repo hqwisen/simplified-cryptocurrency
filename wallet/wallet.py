@@ -5,7 +5,7 @@ from datetime import datetime
 from Crypto.Signature import DSS
 
 from common.models import Transaction, Address, DSA, ENCODING, SIGNATURE_MODE, Blockchain
-from flask_app.relay_channel import get_blockchain
+from relay_channel import get_blockchain
 
 class Wallet:
 

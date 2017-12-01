@@ -1,4 +1,8 @@
-from wallet import Address, Wallet
+import sys
+import os
+sys.path.append(os.path.dirname(os.getcwd()))
+from common.models import Address
+from wallet import Wallet
 from Crypto.PublicKey import DSA
 from Crypto.Signature import DSS
 

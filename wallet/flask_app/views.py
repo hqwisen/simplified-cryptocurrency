@@ -4,9 +4,10 @@ import os
 import sys
 import requests
 sys.path.append(os.path.dirname(os.getcwd()))
+sys.path.append('..')
 from wallet import Wallet, Transaction
 from .forms import LoginForm, MakeTransactionForm, CreateAddressForm
-from .relay_channel import send_transaction
+from relay_channel import send_transaction
 
 WRONG_PASSWORD_ERROR = 'Wrong password'
 TRANSACTION_TO_SELF_ERROR = 'Receiver and sender addresses must be different'
