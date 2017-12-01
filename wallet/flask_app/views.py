@@ -23,6 +23,11 @@ def get_all_saved_addresses():
 wallet = Wallet()
 wallet.update_blockchain()
 
+@app.route('/refresh_blockchain')
+def refresh_blockchain() :
+    wallet.update_blockchain()
+    return index()
+
 @app.route('/', methods=[GET, POST])
 @app.route('/index', methods=[GET, POST])
 def index():
