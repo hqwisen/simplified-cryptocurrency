@@ -30,6 +30,9 @@
               {% for err in form.receiver.errors %}
                 <li>{{ err }}</li>
               {% endfor %}
+              {% if error %}
+                <li>{{ error }}</li>
+              {% endif %}
               </ul>
           </div>
           <div class="control-group">

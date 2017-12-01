@@ -25,6 +25,9 @@
               {% for err in form.label.errors %}
                 <li>{{ err }}</li>
               {% endfor %}
+              {% if error %}
+                <li>{{ error }}</li>
+              {% endif %}
               </ul>
           </div>
         <button class="btn btn-large btn-primary" type="submit">Create address</button>

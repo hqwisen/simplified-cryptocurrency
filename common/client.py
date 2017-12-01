@@ -1,5 +1,3 @@
-from json.decoder import JSONDecodeError
-
 import requests
 import rest_framework
 
@@ -19,7 +17,7 @@ def delete(server, url, data):
 def requests_to_django_response(requests_response):
     try:
         data = requests_response.json(),
-    except JSONDecodeError:
+    except ValueError:
         data = requests_response.content
     response = rest_framework.response.Response(
         status=requests_response.status_code,
