@@ -1,12 +1,17 @@
 import os
 import sys
 sys.path.append(os.path.dirname(os.getcwd())) # Since wallet isn't a Django app, project dir must be added to import models
-
+import requests
 from datetime import datetime
 from Crypto.Signature import DSS
+import ast
 
 from common.models import Transaction, Address, DSA, ENCODING, SIGNATURE_MODE
 
+RELAY_PORT = 8000
+RELAY_IP = "127.0.0.1"
+BLOCKCHAIN_ENDPOINT = 'relay/blockchain'
+ENCODING = 'utf-8'
 
 class Wallet:
 
@@ -33,3 +38,6 @@ class Wallet:
     def sign_transaction(self, transaction):
         signer = DSS.new(DSA.import_key(self.current_address.private_key), SIGNATURE_MODE)
         transaction.signature = signer.sign(transaction.hash)
+
+    def get_blockchain(self) :
+        ast.literal_eval(str(requests.get('http://{}:{}/{}'.format(RELAY_IP, RELAY_PORT, BLOCKCHAIN_ENDPOINT)).content, ENCODING))

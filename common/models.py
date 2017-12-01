@@ -20,7 +20,7 @@ class ParseException(Exception):
 class Blockchain:
     @staticmethod
     def parse(data):
-        blockchain = Blockchain
+        blockchain = Blockchain()
         try:
             for block in data['blocks']:
                 blockchain.add_block(Block.parse(block))
