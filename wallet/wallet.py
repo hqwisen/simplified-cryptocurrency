@@ -17,6 +17,7 @@ class Wallet:
 
     def __init__(self):
         self.current_address = None
+        self.blockchain = None
 
     def log_in(self, password, label):
         self.current_address = Address.load(password, label)
@@ -39,5 +40,5 @@ class Wallet:
         signer = DSS.new(DSA.import_key(self.current_address.private_key), SIGNATURE_MODE)
         transaction.signature = signer.sign(transaction.hash)
 
-    def get_blockchain(self) :
-        return Blockchain.parse(ast.literal_eval(str(requests.get('http://{}:{}/{}'.format(RELAY_IP, RELAY_PORT, BLOCKCHAIN_ENDPOINT)).content, ENCODING)))
+    def update_blockchain(self) :
+        self.blockchain = Blockchain.parse(ast.literal_eval(str(requests.get('http://{}:{}/{}'.format(RELAY_IP, RELAY_PORT, BLOCKCHAIN_ENDPOINT)).content, ENCODING)))

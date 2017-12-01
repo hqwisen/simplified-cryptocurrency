@@ -21,6 +21,7 @@ def get_all_saved_addresses():
     return [file for file in os.listdir(SAVE_DIR) if os.path.isfile(os.path.join(SAVE_DIR, file))]
 
 wallet = Wallet()
+wallet.update_blockchain()
 
 @app.route('/', methods=[GET, POST])
 @app.route('/index', methods=[GET, POST])
@@ -28,13 +29,17 @@ def index():
     current_address = wallet.current_address
     label = current_address.label if current_address else None
     form = MakeTransactionForm()
+    if current_address is not None :
+        current_balance = wallet.blockchain.get_balance(wallet.current_address.raw)
+    else :
+        current_balance = None
     if form.validate_on_submit():
         if form.receiver.data == wallet.current_address.raw :
-            return render_template('index.html', addresses=get_all_saved_addresses(), current_address=current_address, label=label, error=TRANSACTION_TO_SELF_ERROR, form=form)
+            return render_template('index.html', addresses=get_all_saved_addresses(), current_address=current_address, current_balance=current_balance, label=label, error=TRANSACTION_TO_SELF_ERROR, form=form)
         transaction = wallet.create_transaction(form.receiver.data, form.amount.data)
         flash(SIGN_TRANSACTION_SUCCESS, GREEN_ALERT)
         return redirect('/')
-    return render_template('index.html', addresses=get_all_saved_addresses(), current_address=current_address, label=label, form=form)
+    return render_template('index.html', addresses=get_all_saved_addresses(), current_address=current_address, current_balance=current_balance, label=label, form=form)
 
 @app.route('/login/<label>', methods=[GET, POST])
 def login(label):
