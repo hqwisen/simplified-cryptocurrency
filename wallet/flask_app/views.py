@@ -8,6 +8,7 @@ from .forms import LoginForm, MakeTransactionForm, CreateAddressForm
 
 WRONG_PASSWORD_ERROR = 'Wrong password'
 SIGN_TRANSACTION_SUCCESS = 'Transaction succesfully signed and sent'
+LABEL_ALREADY_EXISTS_ERROR = 'This label already exists, please choose another one'
 GREEN_ALERT = 'success'
 POST = 'POST'
 GET = 'GET'
@@ -49,10 +50,14 @@ def login(label):
 def create_address():
     form = CreateAddressForm()
     label = wallet.current_address.label if wallet.current_address else None
+    error = None
     if form.validate_on_submit():
-        new_address = wallet.sign_up(form.password.data, form.label.data)
-        return redirect('/')
-    return render_template('create_address.html', addresses=get_all_saved_addresses(), current_address=wallet.current_address, label=label, form=form)
+        if form.label.data not in get_all_saved_addresses():
+            new_address = wallet.sign_up(form.password.data, form.label.data)
+            return redirect('/')
+        else:
+            error = LABEL_ALREADY_EXISTS_ERROR
+    return render_template('create_address.html', addresses=get_all_saved_addresses(), current_address=wallet.current_address, label=label, form=form, error=error)
 
 @app.route('/logout')
 def logout():
