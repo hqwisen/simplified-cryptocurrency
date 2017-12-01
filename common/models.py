@@ -55,13 +55,13 @@ class Blockchain:
         :return: Blockchain instance containing only the requested part.
         """
         if start is None and end is None:
-            blocks = self.blocks[:]
+            blocks = self.blocks
         elif start is None:
             blocks = self.blocks[:end]
         elif end is None:
             blocks = self.blocks[start:]
         else:
-            blocks = self.blocks[:]
+            blocks = self.blocks[start:end]
         return Blockchain(blocks)
 
     def add_blocks(self, blocks):
