@@ -1,17 +1,11 @@
 import os
 import sys
 sys.path.append(os.path.dirname(os.getcwd())) # Since wallet isn't a Django app, project dir must be added to import models
-import requests
 from datetime import datetime
 from Crypto.Signature import DSS
-import ast
 
 from common.models import Transaction, Address, DSA, ENCODING, SIGNATURE_MODE, Blockchain
-
-RELAY_PORT = 8000
-RELAY_IP = "127.0.0.1"
-BLOCKCHAIN_ENDPOINT = 'relay/blockchain'
-ENCODING = 'utf-8'
+from flask_app.relay_channel import get_blockchain
 
 class Wallet:
 
@@ -41,4 +35,4 @@ class Wallet:
         transaction.signature = signer.sign(transaction.hash)
 
     def update_blockchain(self) :
-        self.blockchain = Blockchain.parse(ast.literal_eval(str(requests.get('http://{}:{}/{}'.format(RELAY_IP, RELAY_PORT, BLOCKCHAIN_ENDPOINT)).content, ENCODING)))
+        self.blockchain = get_blockchain()

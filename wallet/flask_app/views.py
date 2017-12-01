@@ -2,15 +2,20 @@ from flask_app import app
 from flask import flash, render_template, request, redirect
 import os
 import sys
+import requests
 sys.path.append(os.path.dirname(os.getcwd()))
 from wallet import Wallet, Transaction
 from .forms import LoginForm, MakeTransactionForm, CreateAddressForm
+from .relay_channel import send_transaction
 
 WRONG_PASSWORD_ERROR = 'Wrong password'
 TRANSACTION_TO_SELF_ERROR = 'Receiver and sender addresses must be different'
+TRANSACTION_ALREADY_ADDED = 'Transaction already added to next block'
+UNKNOWN_ERROR = 'Unknown error'
 SIGN_TRANSACTION_SUCCESS = 'Transaction succesfully signed and sent'
 LABEL_ALREADY_EXISTS_ERROR = 'This label already exists, please choose another one'
 GREEN_ALERT = 'success'
+RED_ALERT = 'danger'
 POST = 'POST'
 GET = 'GET'
 SAVE_DIR = os.path.join((os.getcwd()), 'addresses')
@@ -42,7 +47,13 @@ def index():
         if form.receiver.data == wallet.current_address.raw :
             return render_template('index.html', addresses=get_all_saved_addresses(), current_address=current_address, current_balance=current_balance, label=label, error=TRANSACTION_TO_SELF_ERROR, form=form)
         transaction = wallet.create_transaction(form.receiver.data, form.amount.data)
-        flash(SIGN_TRANSACTION_SUCCESS, GREEN_ALERT)
+        response_status = send_transaction(transaction)
+        if response_status == 201 :
+            flash(SIGN_TRANSACTION_SUCCESS, GREEN_ALERT)
+        elif response_status == 406 :
+            flash(TRANSACTION_ALREADY_ADDED, RED_ALERT)
+        else :
+            flash(UNKNOWN_ERROR, RED_ALERT)
         return redirect('/')
     return render_template('index.html', addresses=get_all_saved_addresses(), current_address=current_address, current_balance=current_balance, label=label, form=form)
 
