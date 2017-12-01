@@ -4,7 +4,7 @@ import os
 import sys
 import requests
 sys.path.append(os.path.dirname(os.getcwd()))
-sys.path.append('..')
+sys.path.append(os.pardir)
 from wallet import Wallet, Transaction
 from .forms import LoginForm, MakeTransactionForm, CreateAddressForm
 from relay_channel import send_transaction
