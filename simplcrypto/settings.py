@@ -184,5 +184,15 @@ MASTER_IP = "http://localhost:8000/master"
 
 RELAY_IP = ["http://localhost:8001/relay"]
 
+MASTER_ADDRESS_DIRECTORY = "master/addresses/"
+MASTER_LABEL = "MasterAddress"
+MASTER_PASSWORD = "MasterPassworddd"
+MASTER_BALANCE = 100000
+FIRST_BALANCE = 500
+REWARD = 20
+DIFFICULTY = 5
+
+FIRST_ADDRESSES = ["3c9a4bff3857df19c1cd0f6cec16bebadf294b78","60f65a9a5284d033d1fdb77928581582c9e46f9b","c8fa95ef30683e85e7d42ee28c9ba26d97b77ee0","89debd947b372fcd4f4f0b2e51ea93c2b1db6de0","64990db26dd03793f0aa342b1c92afcb54f0ce73"]
+
 # Filter MasterNode access with credentials
 RELAY_CREDENTIALS = {'username': 'relay', 'password': '12345'}

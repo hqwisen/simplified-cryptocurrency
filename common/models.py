@@ -113,7 +113,7 @@ class Block:
     @staticmethod
     def serialize(block):
         data = dict()
-        data['header'] = block.header
+        data['header'] = str(block.header)
         data['nonce'] = block.nonce
         data['transactions'] = []
         for transaction in block.transactions:
@@ -122,7 +122,7 @@ class Block:
         return data
 
     def __init__(self, header="", nonce=""):
-        self.__header = header
+        self.__header = str(header)
         self.__nonce = nonce
         self.__transactions = list()
 
@@ -132,7 +132,7 @@ class Block:
 
     @header.setter
     def header(self, header):
-        self.__header = header
+        self.__header = str(header)
 
     @property
     def nonce(self):
@@ -152,7 +152,7 @@ class Block:
     def get_string_of_transactions(self):
         s = ""
         for transaction in self.transactions:
-            s += transaction.toString()
+            s += transaction.to_string()
         return s
 
 
@@ -246,6 +246,8 @@ class Transaction:
                                bytes(str(self.timestamp), ENCODING) +
                                self.sender_public_key)
 
+
+
     def verify_signature(self):
         try:
             verifier = DSS.new(DSA.import_key(self.sender_public_key), SIGNATURE_MODE)
@@ -255,14 +257,22 @@ class Transaction:
             return False
 
 
+
+    def to_string(self):
+
+        return self.receiver + str(self.amount) + str(self.hash) + \
+               self.sender_public_key.__str__() +\
+               self.signature.__str__() +\
+               str(self.timestamp)
+
 class Address:
     @staticmethod
     def generate_address(public_key):
         return RIPEMD160.new(public_key).hexdigest()
 
     @staticmethod
-    def load(password, label):
-        with open(os.path.join(SAVE_DIR, label), 'rb') as f:
+    def load(password, label, dir = SAVE_DIR):
+        with open(os.path.join(dir, label), 'rb') as f:
             address = Address()
             address.raw = f.readline().strip(CRLF).decode(ENCODING)
             nonce = f.readline().strip(CRLF)
@@ -307,7 +317,3 @@ class Address:
             f.write(bytes(self.raw, ENCODING) + CRLF)
             f.write(cipher.nonce + CRLF)
             f.write(cipher_text)
-
-    def to_string(self):
-        return self.receiver + self.sender + str(self.amount) + self.hash + \
-               self.sender_public_key + self.signature + self.timestamp
