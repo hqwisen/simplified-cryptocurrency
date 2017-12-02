@@ -168,7 +168,6 @@ class Transaction:
             transaction.sender_public_key = bytes(data['sender_public_key'],"latin-1")
             transaction.signature = bytes(data['signature'],"latin-1")
             transaction.timestamp = data['timestamp']
-            transaction.generate_hash()
         except KeyError as e:
             raise ParseException("Attribute %s was not given "
                                  "while parsing transaction." % (e))
@@ -179,11 +178,8 @@ class Transaction:
         transactionDict = dict()
         transactionDict['receiver'] = transaction.receiver
         transactionDict['amount'] = transaction.amount
-        transactionDict['hash'] = transaction.hash.hexdigest()
         transactionDict['sender_public_key'] = transaction.sender_public_key.decode("latin-1")
         transactionDict['signature'] = transaction.signature.decode("latin-1")
-        print("This is signature")
-        print(transaction.signature)
         transactionDict['timestamp'] = transaction.timestamp
         return transactionDict
 
@@ -192,7 +188,6 @@ class Transaction:
         self.__receiver = receiver
         self.__amount = amount
         self.__timestamp = timestamp
-        self.__hash = str()
         self.__sender_public_key = sender_public_key
         self.__signature = str()
 
@@ -221,14 +216,6 @@ class Transaction:
         self.__timestamp = timestamp
 
     @property
-    def hash(self):
-        return self.__hash
-
-    @hash.setter
-    def hash(self, hash):
-        self.__hash = hash
-
-    @property
     def sender_public_key(self):
         return self.__sender_public_key
 
@@ -244,20 +231,18 @@ class Transaction:
     def signature(self, signature):
         self.__signature = signature
 
-    def generate_hash(self):
-        print(bytes(str(self.sender_public_key),ENCODING))
-
-        self.hash = SHA256.new(bytes(self.receiver, ENCODING) +
-                               bytes(str(self.amount), ENCODING) +
-                               bytes(str(self.timestamp), ENCODING) +
-                               bytes(str(self.sender_public_key),ENCODING))
+    def get_hash(self):
+        return SHA256.new(bytes(self.receiver, ENCODING) +
+                           bytes(str(self.amount), ENCODING) +
+                           bytes(str(self.timestamp), ENCODING) +
+                           bytes(str(self.sender_public_key, ENCODING)
 
 
 
     def verify_signature(self):
         try:
             verifier = DSS.new(DSA.import_key(self.sender_public_key), SIGNATURE_MODE)
-            verifier.verify(self.hash, self.signature)
+            verifier.verify(self.get_hash(), self.signature)
             return True
         except ValueError:
             return False
@@ -265,7 +250,7 @@ class Transaction:
 
     def to_string(self):
 
-        return self.receiver + str(self.amount) + str(self.hash) + \
+        return self.receiver + str(self.amount) + \
                self.sender_public_key.__str__() +\
                self.signature.__str__() +\
                str(self.timestamp)
