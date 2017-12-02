@@ -163,10 +163,10 @@ class Transaction:
         try:
             transaction.receiver = data['receiver']
             transaction.amount = data['amount']
-            transaction.hash = data['hash']
             transaction.sender_public_key = data['sender_public_key']
             transaction.signature = data['signature']
             transaction.timestamp = data['timestamp']
+            transaction.generate_hash()
         except KeyError as e:
             raise ParseException("Attribute %s was not given "
                                  "while parsing transaction." % (e))
@@ -177,7 +177,7 @@ class Transaction:
         transactionDict = dict()
         transactionDict['receiver'] = transaction.receiver
         transactionDict['amount'] = transaction.amount
-        transactionDict['hash'] = transaction.hash
+        # transactionDict['hash'] = str(transaction.hash)
         transactionDict['sender_public_key'] = transaction.sender_public_key
         transactionDict['signature'] = transaction.signature
         transactionDict['timestamp'] = transaction.timestamp

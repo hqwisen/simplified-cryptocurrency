@@ -35,13 +35,12 @@ class Master:
             nonce = 0
             found = False
 
-            while not found:    # hashing
-                hash_object = hashlib.sha256(str.encode(transactions_string + str(nonce))) # b allows to concert string to binary
-                block_header = hash_object.hexdigest()
-                if block_header[:settings.DIFFICULTY] == "0" * settings.DIFFICULTY:
-                    found = True
-                else:
-                    nonce += 1
+            hash_object = hashlib.sha256(str.encode(transactions_string + str(nonce))) # b allows to concert string to binary
+            block_header = hash_object.hexdigest()
+            if block_header[:settings.DIFFICULTY] == "0" * settings.DIFFICULTY:
+                found = True
+            else:
+                nonce += 1
             print(block_header)
             block.header = block_header
             block.nonce = nonce
