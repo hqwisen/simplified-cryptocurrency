@@ -159,11 +159,13 @@ class Block:
 class Transaction:
     @staticmethod
     def parse(data):
+        # TODO check that the parsing, consider the encoding of public_key and signature
+        # TODO check if there is a better way to impl the use of generate_hash on reception
         transaction = Transaction()
         try:
             transaction.receiver = data['receiver']
             transaction.amount = data['amount']
-            transaction.sender_public_key = data['sender_public_key']
+            transaction.sender_public_key = bytes(data['sender_public_key'])
             transaction.signature = data['signature']
             transaction.timestamp = data['timestamp']
             transaction.generate_hash()
