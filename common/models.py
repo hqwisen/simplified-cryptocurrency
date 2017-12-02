@@ -177,7 +177,7 @@ class Transaction:
         transactionDict = dict()
         transactionDict['receiver'] = transaction.receiver
         transactionDict['amount'] = transaction.amount
-        # transactionDict['hash'] = str(transaction.hash)
+        transactionDict['hash'] = transaction.hash.hexdigest()
         transactionDict['sender_public_key'] = transaction.sender_public_key
         transactionDict['signature'] = transaction.signature
         transactionDict['timestamp'] = transaction.timestamp
@@ -244,7 +244,7 @@ class Transaction:
         self.hash = SHA256.new(bytes(self.receiver, ENCODING) +
                                bytes(str(self.amount), ENCODING) +
                                bytes(str(self.timestamp), ENCODING) +
-                               self.sender_public_key)
+                               bytes(self.sender_public_key, ENCODING))
 
 
 
