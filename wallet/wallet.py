@@ -26,13 +26,12 @@ class Wallet:
     def create_transaction(self, destination_address, amount):
         new_transaction = Transaction(destination_address, amount, datetime.now().timestamp(),
                                         self.current_address.public_key)
-        new_transaction.generate_hash()
         self.sign_transaction(new_transaction)
         return new_transaction
 
     def sign_transaction(self, transaction):
         signer = DSS.new(DSA.import_key(self.current_address.private_key), SIGNATURE_MODE)
-        transaction.signature = signer.sign(transaction.hash)
+        transaction.signature = signer.sign(transaction.get_hash())
 
     def update_blockchain(self) :
         self.blockchain = get_blockchain()
