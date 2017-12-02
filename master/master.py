@@ -1,5 +1,6 @@
 from common.server import Server
 from common.models import Block, Blockchain, Address, Transaction, DSA, DSS, SIGNATURE_MODE
+from wallet.wallet import Wallet
 from django.conf import settings
 from datetime import datetime
 import hashlib
@@ -11,7 +12,8 @@ class Master:
         def __init__(self):
             super(Master.__Master, self).__init__()
             self.balance = settings.MASTER_BALANCE
-            self.address = Address.load(settings.MASTER_PASSWORD,settings.MASTER_LABEL, settings.MASTER_ADDRESS_DIRECTORY)
+            self.wallet = Wallet()
+            self.wallet.log_in(settings.MASTER_PASSWORD,settings.MASTER_LABEL, settings.MASTER_ADDRESS_DIRECTORY)
             self.add_first_block()
 
 
@@ -21,13 +23,8 @@ class Master:
             addresses_size = len(addresses)
             block = Block()
             for i in range(5):      #create the first 5 transactions
-                destination_address = addresses[i%addresses_size]
-                new_transaction = Transaction(destination_address, settings.FIRST_BALANCE, datetime.now().timestamp(),
-                                                self.address.public_key)
-                new_transaction.generate_hash()
-                signer = DSS.new(DSA.import_key(self.address.private_key), SIGNATURE_MODE)
-                new_transaction.signature = signer.sign(new_transaction.hash)
-                x = new_transaction.signature.__str__()
+                destination_address = addresses[i%addresses_size]   #if there's less than 5
+                new_transaction = self.wallet.create_transaction(destination_address,settings.FIRST_BALANCE)
 
                 block.add_transaction(new_transaction)
 
@@ -41,7 +38,6 @@ class Master:
                     found = True
                 else:
                     nonce += 1
-            print(block_header)
             block.header = block_header
             block.nonce = nonce
 

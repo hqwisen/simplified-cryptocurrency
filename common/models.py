@@ -165,8 +165,8 @@ class Transaction:
         try:
             transaction.receiver = data['receiver']
             transaction.amount = data['amount']
-            transaction.sender_public_key = bytes(data['sender_public_key'])
-            transaction.signature = data['signature']
+            transaction.sender_public_key = bytes(data['sender_public_key'],"latin-1")
+            transaction.signature = bytes(data['signature'],"latin-1")
             transaction.timestamp = data['timestamp']
             transaction.generate_hash()
         except KeyError as e:
@@ -180,8 +180,10 @@ class Transaction:
         transactionDict['receiver'] = transaction.receiver
         transactionDict['amount'] = transaction.amount
         transactionDict['hash'] = transaction.hash.hexdigest()
-        transactionDict['sender_public_key'] = transaction.sender_public_key
-        transactionDict['signature'] = transaction.signature
+        transactionDict['sender_public_key'] = transaction.sender_public_key.decode("latin-1")
+        transactionDict['signature'] = transaction.signature.decode("latin-1")
+        print("This is signature")
+        print(transaction.signature)
         transactionDict['timestamp'] = transaction.timestamp
         return transactionDict
 
@@ -243,10 +245,12 @@ class Transaction:
         self.__signature = signature
 
     def generate_hash(self):
+        print(bytes(str(self.sender_public_key),ENCODING))
+
         self.hash = SHA256.new(bytes(self.receiver, ENCODING) +
                                bytes(str(self.amount), ENCODING) +
                                bytes(str(self.timestamp), ENCODING) +
-                               bytes(self.sender_public_key, ENCODING))
+                               bytes(str(self.sender_public_key),ENCODING))
 
 
 
@@ -257,7 +261,6 @@ class Transaction:
             return True
         except ValueError:
             return False
-
 
 
     def to_string(self):

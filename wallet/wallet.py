@@ -5,7 +5,14 @@ from datetime import datetime
 from Crypto.Signature import DSS
 
 from common.models import Transaction, Address, DSA, ENCODING, SIGNATURE_MODE, Blockchain
-from relay_channel import get_blockchain
+
+from pathlib import Path
+
+my_file = Path("relay_channel.py")
+if my_file.is_file(): # Client side
+    from relay_channel import get_blockchain
+else:   #MasterNode side
+    from wallet.relay_channel import get_blockchain
 
 class Wallet:
 
@@ -13,8 +20,11 @@ class Wallet:
         self.current_address = None
         self.blockchain = None
 
-    def log_in(self, password, label):
-        self.current_address = Address.load(password, label)
+    def log_in(self, password, label, dir = None):
+        if dir == None:
+            self.current_address = Address.load(password, label)
+        else:
+            self.current_address = Address.load(password, label, dir)
         return self.current_address != None
 
     def log_out(self):
