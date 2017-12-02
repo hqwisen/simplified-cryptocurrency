@@ -235,9 +235,7 @@ class Transaction:
         return SHA256.new(bytes(self.receiver, ENCODING) +
                            bytes(str(self.amount), ENCODING) +
                            bytes(str(self.timestamp), ENCODING) +
-                           bytes(str(self.sender_public_key, ENCODING)
-
-
+                           bytes(str(self.sender_public_key), ENCODING))
 
     def verify_signature(self):
         try:

@@ -52,7 +52,7 @@ def main():
 def verify_signature(transaction):
     verifier = DSS.new(DSA.import_key(transaction.sender_public_key), 'fips-186-3')
     try:
-        verifier.verify(transaction.hash, transaction.signature)
+        verifier.verify(transaction.get_hash(), transaction.signature)
         print('Correct signature')
     except ValueError:
         print('Incorrect signature')
