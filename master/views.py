@@ -58,8 +58,8 @@ class BlockView(APIView):
             for relay_ip in settings.RELAY_IP:
                 logger.debug("Sending block '%s' to relay %s" % (block.header, relay_ip))
                 client.post(relay_ip, 'block', block_data)
-            # TODO add reward to miner using request.data['miner_address']
-            # client.post(relay_ip, 'transactions', transaction)
+            miner_transaction = self.server.wallet.create_transaction(request.data['miner_address'],settings.REWARD)
+            client.post(relay_ip, 'transactions', Transaction.serialize(miner_transaction))
             response = Response({"detail": "Block successfully added!"},
                                 status=status.HTTP_201_CREATED)
         else:
