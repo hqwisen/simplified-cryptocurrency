@@ -6,7 +6,8 @@ from Crypto.Signature import DSS
 
 P_SIZE = 2048
 PASSWORD_LENGTH = 16
-ENCODING = 'utf-8'
+ENCODING_UTF8 = 'utf-8'
+ENCODING_LATIN = "latin-1"
 SEPARATOR = b'\n+==============+\n'
 CRLF = b'\r\n'
 SAVE_DIR = 'addresses'
@@ -165,8 +166,8 @@ class Transaction:
         try:
             transaction.receiver = data['receiver']
             transaction.amount = data['amount']
-            transaction.sender_public_key = bytes(data['sender_public_key'],"latin-1")
-            transaction.signature = bytes(data['signature'],"latin-1")
+            transaction.sender_public_key = bytes(data['sender_public_key'],ENCODING_UTF8)
+            transaction.signature = bytes(data['signature'],ENCODING_LATIN)
             transaction.timestamp = data['timestamp']
         except KeyError as e:
             raise ParseException("Attribute %s was not given "
@@ -178,8 +179,8 @@ class Transaction:
         transactionDict = dict()
         transactionDict['receiver'] = transaction.receiver
         transactionDict['amount'] = transaction.amount
-        transactionDict['sender_public_key'] = transaction.sender_public_key.decode("latin-1")
-        transactionDict['signature'] = transaction.signature.decode("latin-1")
+        transactionDict['sender_public_key'] = transaction.sender_public_key.decode(ENCODING_UTF8)
+        transactionDict['signature'] = transaction.signature.decode(ENCODING_LATIN)
         transactionDict['timestamp'] = transaction.timestamp
         return transactionDict
 
@@ -232,10 +233,10 @@ class Transaction:
         self.__signature = signature
 
     def get_hash(self):
-        return SHA256.new(bytes(self.receiver, ENCODING) +
-                           bytes(str(self.amount), ENCODING) +
-                           bytes(str(self.timestamp), ENCODING) +
-                           bytes(str(self.sender_public_key), ENCODING))
+        return SHA256.new(bytes(self.receiver, ENCODING_UTF8) +
+                           bytes(str(self.amount), ENCODING_UTF8) +
+                           bytes(str(self.timestamp), ENCODING_UTF8) +
+                           bytes(str(self.sender_public_key), ENCODING_UTF8))
 
     def verify_signature(self):
         try:
@@ -249,8 +250,8 @@ class Transaction:
     def to_string(self):
 
         return self.receiver + str(self.amount) + \
-               self.sender_public_key.__str__() +\
-               self.signature.__str__() +\
+               str(self.sender_public_key) +\
+               str(self.signature) +\
                str(self.timestamp)
 
 class Address:
@@ -262,10 +263,10 @@ class Address:
     def load(password, label, dir = SAVE_DIR):
         with open(os.path.join(dir, label), 'rb') as f:
             address = Address()
-            address.raw = f.readline().strip(CRLF).decode(ENCODING)
+            address.raw = f.readline().strip(CRLF).decode(ENCODING_UTF8)
             nonce = f.readline().strip(CRLF)
             cipher_text = b''.join(f.readlines())
-            cipher = AES.new(bytes(password, ENCODING), AES.MODE_EAX, nonce)
+            cipher = AES.new(bytes(password, ENCODING_UTF8), AES.MODE_EAX, nonce)
             keys = cipher.decrypt(cipher_text).split(SEPARATOR)
             address.label = label
             address.public_key = keys[0]
@@ -276,7 +277,7 @@ class Address:
 
     @staticmethod
     def create(password, address_label):
-        if len(bytes(password, ENCODING)) != PASSWORD_LENGTH:  # Pw must be of 16 bytes
+        if len(bytes(password, ENCODING_UTF8)) != PASSWORD_LENGTH:  # Pw must be of 16 bytes
             return None
         new_key = DSA.generate(P_SIZE)
         address = Address()
@@ -300,8 +301,8 @@ class Address:
             os.makedirs(SAVE_DIR)
         with open(os.path.join(SAVE_DIR, self.label), 'wb') as f:
             keys = self.public_key + SEPARATOR + self.private_key
-            cipher = AES.new(bytes(password, ENCODING), AES.MODE_EAX)
+            cipher = AES.new(bytes(password, ENCODING_UTF8), AES.MODE_EAX)
             cipher_text = cipher.encrypt(keys)
-            f.write(bytes(self.raw, ENCODING) + CRLF)
+            f.write(bytes(self.raw, ENCODING_UTF8) + CRLF)
             f.write(cipher.nonce + CRLF)
             f.write(cipher_text)
