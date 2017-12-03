@@ -3,6 +3,7 @@ from Crypto.PublicKey import DSA
 from Crypto.Cipher import AES
 from Crypto.Hash import RIPEMD160, SHA256
 from Crypto.Signature import DSS
+import base64
 
 P_SIZE = 2048
 PASSWORD_LENGTH = 16
@@ -166,12 +167,12 @@ class Transaction:
         try:
             transaction.receiver = data['receiver']
             transaction.amount = data['amount']
-            transaction.sender_public_key = bytes(data['sender_public_key'],ENCODING_UTF8)
-            transaction.signature = bytes(data['signature'],ENCODING_LATIN)
+            transaction.sender_public_key = bytes(data['sender_public_key'], ENCODING_UTF8)
+            transaction.signature = base64.b64decode(data['signature'])
             transaction.timestamp = data['timestamp']
         except KeyError as e:
             raise ParseException("Attribute %s was not given "
-                                 "while parsing transaction." % (e))
+                                 "while parsing transaction." % e)
         return transaction
 
     @staticmethod
@@ -180,7 +181,7 @@ class Transaction:
         transactionDict['receiver'] = transaction.receiver
         transactionDict['amount'] = transaction.amount
         transactionDict['sender_public_key'] = transaction.sender_public_key.decode(ENCODING_UTF8)
-        transactionDict['signature'] = transaction.signature.decode(ENCODING_LATIN)
+        transactionDict['signature'] = base64.b64encode(transaction.signature)
         transactionDict['timestamp'] = transaction.timestamp
         return transactionDict
 
@@ -234,25 +235,26 @@ class Transaction:
 
     def get_hash(self):
         return SHA256.new(bytes(self.receiver, ENCODING_UTF8) +
-                           bytes(str(self.amount), ENCODING_UTF8) +
-                           bytes(str(self.timestamp), ENCODING_UTF8) +
-                           bytes(str(self.sender_public_key), ENCODING_UTF8))
+                          bytes(str(self.amount), ENCODING_UTF8) +
+                          bytes(str(self.timestamp), ENCODING_UTF8) +
+                          bytes(str(self.sender_public_key), ENCODING_UTF8))
 
     def verify_signature(self):
         try:
+            # TODO check value Error if first instruction or second
             verifier = DSS.new(DSA.import_key(self.sender_public_key), SIGNATURE_MODE)
             verifier.verify(self.get_hash(), self.signature)
             return True
         except ValueError:
             return False
 
-
     def to_string(self):
 
         return self.receiver + str(self.amount) + \
-               str(self.sender_public_key) +\
-               str(self.signature) +\
+               str(self.sender_public_key) + \
+               str(self.signature) + \
                str(self.timestamp)
+
 
 class Address:
     @staticmethod
@@ -260,7 +262,7 @@ class Address:
         return RIPEMD160.new(public_key).hexdigest()
 
     @staticmethod
-    def load(password, label, dir = SAVE_DIR):
+    def load(password, label, dir=SAVE_DIR):
         with open(os.path.join(dir, label), 'rb') as f:
             address = Address()
             address.raw = f.readline().strip(CRLF).decode(ENCODING_UTF8)

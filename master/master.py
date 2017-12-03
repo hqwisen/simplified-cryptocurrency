@@ -1,10 +1,15 @@
-from common.server import Server
-from common.models import Block, Blockchain, Address, Transaction, DSA, DSS, SIGNATURE_MODE
-from wallet.wallet import Wallet
-from django.conf import settings
-from datetime import datetime
 import hashlib
 
+from django.conf import settings
+
+from common.models import Block, Address
+from common.server import Server
+from wallet.wallet import Wallet
+import json
+
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class Master:
@@ -13,18 +18,25 @@ class Master:
             super(Master.__Master, self).__init__()
             self.balance = settings.MASTER_BALANCE
             self.wallet = Wallet()
-            self.wallet.log_in(settings.MASTER_PASSWORD,settings.MASTER_LABEL, settings.MASTER_ADDRESS_DIRECTORY)
+            self.wallet.log_in(settings.MASTER_PASSWORD, settings.MASTER_LABEL, settings.MASTER_ADDRESS_DIRECTORY)
+            #self.hardcoded_genesis_block()
             self.add_first_block()
 
+        def hardcoded_genesis_block(self):
+            log.debug("Initializing genesis block (from file %s)" % settings.GENESIS_BLOCK_FILE)
+            # with open(settings.GENESIS_BLOCK_FILE, 'r') as f:
+            #     data = json.load(f)
+            # print(data)
 
+#            self.add_block(Block.parse(data))
 
         def add_first_block(self):
             addresses = settings.FIRST_ADDRESSES
             addresses_size = len(addresses)
             block = Block()
-            for i in range(5):      #create the first 5 transactions
-                destination_address = addresses[i%addresses_size]   #if there's less than 5
-                new_transaction = self.wallet.create_transaction(destination_address,settings.FIRST_BALANCE)
+            for i in range(5):  # create the first 5 transactions
+                destination_address = addresses[i % addresses_size]  # if there's less than 5
+                new_transaction = self.wallet.create_transaction(destination_address, settings.FIRST_BALANCE)
 
                 block.add_transaction(new_transaction)
 
@@ -32,7 +44,8 @@ class Master:
             nonce = 0
             found = False
             while not found:  # hashing
-                hash_object = hashlib.sha256(str.encode(transactions_string + str(nonce))) # b allows to concert string to binary
+                hash_object = hashlib.sha256(
+                    str.encode(transactions_string + str(nonce)))  # b allows to concert string to binary
                 block_header = hash_object.hexdigest()
                 if block_header[:settings.DIFFICULTY] == "0" * settings.DIFFICULTY:
                     found = True
@@ -42,8 +55,6 @@ class Master:
             block.nonce = nonce
 
             self.add_block(block)
-
-
 
         def update_blockchain(self, block):
             """

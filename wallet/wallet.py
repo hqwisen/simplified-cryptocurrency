@@ -9,6 +9,7 @@ from common.models import Transaction, Address, DSA, ENCODING_UTF8, SIGNATURE_MO
 from pathlib import Path
 
 my_file = Path("relay_channel.py")
+# FIXME avoid using this weird import and use env path when running client/server
 if my_file.is_file(): # Client side
     from relay_channel import get_blockchain
 else:   #MasterNode side

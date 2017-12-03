@@ -15,7 +15,6 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
@@ -26,7 +25,6 @@ SECRET_KEY = 't+t@8niogs68+x%79qd%ph_v^4b(dzwfb$(*j0^vjjo%t_n4(8'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
 
 # Application definition
 
@@ -74,7 +72,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'simplcrypto.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
@@ -84,7 +81,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
@@ -104,7 +100,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
@@ -117,7 +112,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
@@ -192,7 +186,12 @@ FIRST_BALANCE = 500
 REWARD = 20
 DIFFICULTY = 5
 
-FIRST_ADDRESSES = ["3c9a4bff3857df19c1cd0f6cec16bebadf294b78","60f65a9a5284d033d1fdb77928581582c9e46f9b","c8fa95ef30683e85e7d42ee28c9ba26d97b77ee0","89debd947b372fcd4f4f0b2e51ea93c2b1db6de0","64990db26dd03793f0aa342b1c92afcb54f0ce73"]
+FIRST_ADDRESSES = ["3c9a4bff3857df19c1cd0f6cec16bebadf294b78", "60f65a9a5284d033d1fdb77928581582c9e46f9b",
+                   "c8fa95ef30683e85e7d42ee28c9ba26d97b77ee0", "89debd947b372fcd4f4f0b2e51ea93c2b1db6de0",
+                   "64990db26dd03793f0aa342b1c92afcb54f0ce73"]
 
 # Filter MasterNode access with credentials
 RELAY_CREDENTIALS = {'username': 'relay', 'password': '12345'}
+
+
+GENESIS_BLOCK_FILE = os.path.join(BASE_DIR, 'master', 'genesisblock.json')
