@@ -20,7 +20,7 @@ class Master:
             self.wallet = Wallet()
             self.wallet.log_in(settings.MASTER_PASSWORD, settings.MASTER_LABEL, settings.MASTER_ADDRESS_DIRECTORY)
             self.hardcoded_genesis_block()
-            # self.add_first_block()
+            # self.add_genesis_block()
 
         def hardcoded_genesis_block(self):
             log.debug("Initializing genesis block (from file %s)" % settings.GENESIS_BLOCK_FILE)
@@ -28,7 +28,7 @@ class Master:
                 data = json.load(f)
             self.add_block(Block.parse(data))
 
-        def add_first_block(self):
+        def add_genesis_block(self):
             addresses = settings.FIRST_ADDRESSES
             addresses_size = len(addresses)
             block = Block()

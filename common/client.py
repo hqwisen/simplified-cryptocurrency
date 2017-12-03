@@ -1,30 +1,24 @@
 import requests
-import rest_framework
+from requests.auth import HTTPBasicAuth
 
 
-def get(server, url, data=None):
-    return requests_to_django_response(requests.get(server + '/' + url, json=data))
+class Response:
+    def __init__(self, requests_response):
+        self.data = requests_response.json()
+        self.status = requests_response.status_code
 
 
-def post(server, url, data):
-    return requests_to_django_response(requests.post(server + '/' + url, json=data))
+def get_auth(basic_auth):
+    return HTTPBasicAuth(*basic_auth) if basic_auth else None
 
 
-def delete(server, url, data):
-    return requests_to_django_response(requests.delete(server + '/' + url, json=data))
+def get(server, url, data=None, basic_auth=None):
+    return Response(requests.get(server + '/' + url, json=data, auth=get_auth(basic_auth)))
 
 
-def requests_to_django_response(requests_response):
-    try:
-        data = requests_response.json(),
-    except ValueError:
-        data = requests_response.content
-    response = rest_framework.response.Response(
-        status=requests_response.status_code,
-        data=data,
-        headers=requests_response.headers
-    )
-    # FIXME should we include content-type in django response ?
-    # if 'Content_Type' in requests_response.headers['Content-Type']:
-    #     response.content_type = requests_response.headers['Content-Type']
-    return response
+def post(server, url, data, basic_auth=None):
+    return Response(requests.post(server + '/' + url, json=data, auth=get_auth(basic_auth)))
+
+
+def delete(server, url, data, basic_auth=None):
+    return Response(requests.delete(server + '/' + url, json=data, auth=get_auth(basic_auth)))
