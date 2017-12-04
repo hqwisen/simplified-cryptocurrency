@@ -46,7 +46,7 @@ class BlockView(APIView):
         # TODO it is not a good idea to return master response to miner
         # TODO include Basic Relay Credentials in post request
         # return Response("Successfully received", status=status.HTTP_200_OK)
-        return response
+        return Response(status=status.HTTP_200_OK)
 
 class TransactionView(APIView):
     def get(self, request):

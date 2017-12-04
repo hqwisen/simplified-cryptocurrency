@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.append(os.path.dirname(os.getcwd()))
-from common.models import Address
+from common.models import Address, Transaction
 from wallet import Wallet
 from Crypto.PublicKey import DSA
 from Crypto.Signature import DSS
@@ -33,9 +33,12 @@ def main():
     
     # Signature verification example (and therefore test)
     verify_signature(transaction)
+    transaction2 = Transaction.parse(Transaction.serialize(transaction))
 
     transaction.sender_public_key = ad.public_key # Changing the public key so signature shouldn't be correct
     verify_signature(transaction)
+    print("TX2 verify", transaction2.verify_signature())
+    # verify_signature(transaction2)
 
 
 def verify_signature(transaction):
