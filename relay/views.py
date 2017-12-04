@@ -40,7 +40,9 @@ class BlockchainView(BlockchainGETView):
 class BlockView(APIView):
     def post(self, request):
         logger.debug("Receive a block, forwarding to master.")
-        response = client.post(settings.MASTER_IP, 'block', request.data)
+        user = settings.RELAY_CREDENTIALS['username']
+        pwd = settings.RELAY_CREDENTIALS['password']
+        response = client.post(settings.MASTER_IP, 'block', request.data, basic_auth=(user, pwd))
         # TODO should we send an anwser base on master node response ?
         # TODO Careful to not return sensitive info to miner
         # TODO it is not a good idea to return master response to miner
