@@ -198,7 +198,7 @@ class Transaction:
     def __init__(self, receiver=str(), amount=0,
                  timestamp=str(), sender_public_key=str()):
         self.__receiver = receiver
-        self.__amount = amount
+        self.__amount = float(amount)
         self.__timestamp = timestamp
         self.__sender_public_key = sender_public_key
         self.__signature = str()
@@ -217,7 +217,7 @@ class Transaction:
 
     @amount.setter
     def amount(self, amount):
-        self.__amount = amount
+        self.__amount = float(amount)
 
     @property
     def timestamp(self):
