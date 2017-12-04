@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.ERROR)
 
 sys.path.append('..')
 
-from common.models import *
+#from common.models import *
 import requests
 
 
@@ -31,7 +31,12 @@ class Miner:
         self.ip = ip
         self.port = port
         self.url = "http://" + ip + ":" + str(port)
-        self.startMining()
+
+    def test(self):
+        self.printStartMining()
+        for i in range(5):
+            self.printAddedNewTransaction()
+        self.printSendBlock()
 
     def startMining(self):
         """
@@ -43,69 +48,56 @@ class Miner:
             balanceDic = dict()
             responseBl = requests.get(self.url + "/relay/blockchain")
             blockchain = Blockchain.parse(responseBl.json())
+            self.printStartMining()
             while (len(self.transactions) < 5):
-                print("Taille trans : " , len(self.transactions))
-                data = {"exclude_hash": excludes}
-                responseTr = requests.get(self.url + "/relay/transactions",
-                                          data)
-                print(responseTr.json())
+                transactionsToExclude = {"exclude_hash": excludes}
+                responseTr = requests.get(self.url + "/relay/transactions",transactionsToExclude)
                 # If transaction is not empty ( None )
-                log.debug("Receive transaction %s " % responseTr.status_code)
-                print("Receive transaction ", responseTr.status_code)
-                if responseTr.status_code == 200:
-                    balanceKeys = balanceDic.keys()
+                if (responseTr.status_code == 200):
                     transaction = Transaction.parse(responseTr.json())
-                    sender = Address.generate_address(
-                        transaction.sender_public_key)
-                    receiver = transaction.receiver
-
-                    ####################################################
                     # VERIF SIGNATURE
-                    print("transaction sign : " , transaction.signature)
-                    print("transaction pkey : ", transaction.sender_public_key)
-                    print("verif : ", transaction.verify_signature())
                     if (transaction.verify_signature()):
-                        print("Signature ok")
+                        balanceKeys = balanceDic.keys()
+                        sender = Address.generate_address(transaction.sender_public_key)
+                        receiver = transaction.receiver
                         # VERIF BALANCE
                         if not (sender in balanceKeys):
-                            balanceDic[
-                                sender] = blockchain.get_balance(
-                                sender)
-                        balanceDic[sender] -= transaction.amount
+                            balanceDic[sender] = blockchain.get_balance(sender)
                         if not (receiver in balanceKeys):
-                            balanceDic[
-                                receiver] = blockchain.get_balance(
-                                receiver)
-                        balanceDic[receiver] += transaction.amount
+                            balanceDic[receiver] = blockchain.get_balance(receiver)
 
-
-                        if (balanceDic.get(sender) >= 0):
-                            print("Balance ok")
+                        if (senderHasEnoughBalance(sender, amount, balanceDic)):
+                            balanceDic[sender] -= transaction.amount
+                            balanceDic[receiver] += transaction.amount
                             self.transactions.append(transaction)
-                        else:
-                            balanceDic[transaction.sender] += transaction.amount
-                            balanceDic[
-                                transaction.receiver] -= transaction.amount
+                            self.printAddedNewTransaction()
                     # Add this transaction to our excludes
                     excludes.append(transaction.hash)
-                ####################################################
-
             # Once we got all transactions and verifications done.
             # We can start PROOF OF WORK
             # part_of(start, end) , we only need last block's hash
             lastBlockchainHash = blockchain.last_block().header
             complete_hash, nonce = self.proofOfWork(lastBlockchainHash)
             newBlock = self.createBlock(complete_hash, nonce)
-            log.debug("New block %s " % str(newBlock))
-            print("New block", newBlock)
-            print("Complet hash", complete_hash)
             ####################################################
-
             # Send block to relay
             # Create JSON with format of acceptance by relay. We give the address to get paid if block is accepted
             blockAndaddress = {'block': Block.serialize(newBlock),
                                'miner_address': self.address}
             requests.post(self.url + "/relay/block", blockAndaddress)
+            self.printSendBlock()
+
+    def printStartMining(self):
+        print("##\n## Starting new block")
+
+    def printAddedNewTransaction(self):
+        print("\t-> Added new Transaction")
+
+    def printSendBlock(self):
+        print("\t\t-> New block has been created and sent to Server")
+
+    def senderHasEnoughBalance(sender, amount, balanceDic):
+        return balanceDic.get(sender) - amount >= 0
 
     def proofOfWork(self, lastBlockchainHash):
         """
@@ -157,9 +149,20 @@ class Miner:
             block.add_transaction(transaction)
         return block
 
+def printWelcome():
+    print("#" *25)
+    print("# MINING ULBCoin, Are you ready to be rich ?")
+    print("#" *25)
+
+def askAdr():
+    return input("Address you want to mine for : ")
+
+def main():
+    printWelcome()
+    # TODO Maybe check if address exists in the blockchain.
+    adr = askAdr()
+    miner = Miner(adr, "localhost", 8001)
+    miner.startMining()
 
 if __name__ == "__main__":
-    # TODO
-    # TODO
-    # TODO Give legit address ip of relay
-    miner = Miner('43463a5a6dea8cd80d616607ab73fa24f4943e3b', "localhost", 8001)
+    main()
