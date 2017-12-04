@@ -171,7 +171,7 @@ class Transaction:
         try:
             transaction.receiver = data['receiver']
             transaction.amount = data['amount']
-            transaction.sender_public_key = bytes(data['sender_public_key'], ENCODING_UTF8)
+            transaction.sender_public_key = data['sender_public_key'].encode(ENCODING_UTF8)
             transaction.signature = base64.b64decode(data['signature'])
             transaction.timestamp = data['timestamp']
         except KeyError as e:
