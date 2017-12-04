@@ -18,8 +18,4 @@ class RelayConfig(AppConfig):
         pwd = settings.RELAY_CREDENTIALS['password']
         server = Relay()
         response = client.get(settings.MASTER_IP, "blockchain", basic_auth=(user, pwd))
-        blockchain = Blockchain.parse(response.data)
-        print(blockchain)
-        print("SERVER", server.blockchain)
-        server.blockchain = blockchain
-        print("S AFTER", server.blockchain)
+        server.blockchain = Blockchain.parse(response.data)

@@ -73,3 +73,6 @@ class Relay:
 
     def __getattr__(self, name):
         return getattr(self.instance, name)
+
+    def __setattr__(self, name, value):
+        setattr(self.instance, name, value)

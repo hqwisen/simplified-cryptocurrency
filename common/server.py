@@ -11,6 +11,7 @@ class Server:
     """
 
     def __init__(self):
+        logger.debug("Intiazing server instance")
         self.__blockchain = Blockchain()
 
     def add_block(self, block):
