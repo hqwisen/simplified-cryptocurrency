@@ -8,7 +8,6 @@
 
 import hashlib
 import sys
-
 import logging
 
 log = logging.getLogger(__name__)
@@ -16,7 +15,7 @@ logging.basicConfig(level=logging.ERROR)
 
 sys.path.append('..')
 
-#from common.models import *
+from common.models import *
 import requests
 
 
@@ -60,13 +59,14 @@ class Miner:
                         balanceKeys = balanceDic.keys()
                         sender = Address.generate_address(transaction.sender_public_key)
                         receiver = transaction.receiver
+                        amount = transaction.amount
                         # VERIF BALANCE
                         if not (sender in balanceKeys):
                             balanceDic[sender] = blockchain.get_balance(sender)
                         if not (receiver in balanceKeys):
                             balanceDic[receiver] = blockchain.get_balance(receiver)
 
-                        if (senderHasEnoughBalance(sender, amount, balanceDic)):
+                        if (self.senderHasEnoughBalance(sender, amount, balanceDic)):
                             balanceDic[sender] -= transaction.amount
                             balanceDic[receiver] += transaction.amount
                             self.transactions.append(transaction)
@@ -84,6 +84,7 @@ class Miner:
             # Create JSON with format of acceptance by relay. We give the address to get paid if block is accepted
             blockAndaddress = {'block': Block.serialize(newBlock),
                                'miner_address': self.address}
+            print(blockAndaddress)
             requests.post(self.url + "/relay/block", blockAndaddress)
             self.printSendBlock()
 
@@ -96,7 +97,7 @@ class Miner:
     def printSendBlock(self):
         print("\t\t-> New block has been created and sent to Server")
 
-    def senderHasEnoughBalance(sender, amount, balanceDic):
+    def senderHasEnoughBalance(self,sender, amount, balanceDic):
         return balanceDic.get(sender) - amount >= 0
 
     def proofOfWork(self, lastBlockchainHash):
