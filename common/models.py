@@ -95,7 +95,7 @@ class Blockchain:
         balance = 0
         for block in self.blocks:
             for transaction in block.transactions:
-                if Address.generate_address(transaction.get_sender_public_key()) == address:
+                if Address.generate_address(transaction.sender_public_key) == address:
                     balance -= transaction.amount
                 elif transaction.receiver == address:
                     balance += transaction.amount
