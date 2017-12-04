@@ -35,6 +35,10 @@ class Server:
     @property
     def blockchain(self):
         return self.__blockchain
+    
+    @blockchain.setter
+    def blockchain(self, blockchain):
+        self.__blockchain = blockchain
 
     @property
     def blockchain_size(self):

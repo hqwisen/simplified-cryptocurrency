@@ -14,6 +14,12 @@ class RelayConfig(AppConfig):
 
     def ready(self):
         log.debug("Initializing relay server by getting blockchain from master")
+        user = settings.RELAY_CREDENTIALS['username']
+        pwd = settings.RELAY_CREDENTIALS['password']
         server = Relay()
-        response = client.get(settings.MASTER_IP, "blockchain")
-        server.blockchain = Blockchain.parse(response.data)
+        response = client.get(settings.MASTER_IP, "blockchain", basic_auth=(user, pwd))
+        blockchain = Blockchain.parse(response.data)
+        print(blockchain)
+        print("SERVER", server.blockchain)
+        server.blockchain = blockchain
+        print("S AFTER", server.blockchain)
