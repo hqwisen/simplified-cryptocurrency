@@ -26,7 +26,10 @@ class Relay:
         def add_transaction(self, transaction):
             if self.transaction_exists(transaction):
                 raise RelayError("Transaction '%s' is already added." % transaction.hash)
+            logger.debug("Adding TX %s with signature %s" % (transaction.hash, transaction.b64signature))
+            logger.debug("Verifying TX: %s" % transaction.verify_signature())
             self.transactions.append(transaction)
+
 
         def get_transaction(self, exclude):
             for transaction in self.transactions:

@@ -236,6 +236,10 @@ class Transaction:
         self.__sender_public_key = sender_public_key
 
     @property
+    def b64signature(self):
+        return base64.b64encode(self.signature)
+
+    @property
     def signature(self):
         return self.__signature
 

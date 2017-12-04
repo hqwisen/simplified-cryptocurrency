@@ -4,9 +4,10 @@ sys.path.append(os.path.dirname(os.getcwd())) # Since wallet isn't a Django app,
 from datetime import datetime
 from Crypto.Signature import DSS
 
-from common.models import Transaction, Address, DSA, ENCODING_UTF8, SIGNATURE_MODE, Blockchain
+from common.models import Transaction, Address, DSA, SIGNATURE_MODE
 
 from pathlib import Path
+
 
 my_file = Path("relay_channel.py")
 # FIXME avoid using this weird import and use env path when running client/server
