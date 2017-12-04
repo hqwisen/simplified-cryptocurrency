@@ -178,8 +178,6 @@ class Transaction:
             transaction.sender_public_key = bytes(data['sender_public_key'],
                                                   ENCODING_UTF8)
             transaction.signature = base64.b64decode(data['signature'])
-            print(transaction.signature)
-            print(base64.b64decode(data['signature']))
             transaction.timestamp = data['timestamp']
         except KeyError as e:
             raise ParseException("Attribute %s was not given "
@@ -193,9 +191,7 @@ class Transaction:
         # TODO fix confusion between hash and get_hash, its weird to not send the hash
         transactionDict['hash'] = transaction.hash
         transactionDict['amount'] = transaction.amount
-        transactionDict[
-            'sender_public_key'] = transaction.sender_public_key.decode(
-            ENCODING_UTF8)
+        transactionDict['sender_public_key'] = transaction.sender_public_key.decode(ENCODING_UTF8)
         transactionDict['signature'] = base64.b64encode(transaction.signature)
         transactionDict['timestamp'] = transaction.timestamp
         return transactionDict
@@ -259,14 +255,14 @@ class Transaction:
         return self.get_hash().hexdigest()
 
     def verify_signature(self):
-        # verifier = DSS.new(DSA.import_key(self.sender_public_key),
-        #                    SIGNATURE_MODE)
-        # try:
-        #     verifier.verify(self.get_hash(), self.signature)
-        #     return True
-        # except ValueError:
-        #     return False
-        return True
+        verifier = DSS.new(DSA.import_key(self.sender_public_key),
+                           SIGNATURE_MODE)
+        try:
+            verifier.verify(self.get_hash(), self.signature)
+            return True
+        except ValueError:
+            return False
+
     def to_string(self):
 
         return self.receiver + str(self.amount) + \
