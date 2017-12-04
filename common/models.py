@@ -243,7 +243,7 @@ class Transaction:
         return SHA256.new(bytes(self.receiver, ENCODING_UTF8) +
                           bytes(str(self.amount), ENCODING_UTF8) +
                           bytes(str(self.timestamp), ENCODING_UTF8) +
-                          bytes(str(self.sender_public_key), ENCODING_UTF8))
+                          self.sender_public_key)
     @property
     def hash(self):
         return self.get_hash().hexdigest()
