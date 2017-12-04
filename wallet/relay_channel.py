@@ -5,7 +5,7 @@ import requests
 import ast
 from common.models import Transaction, Blockchain
 
-RELAY_PORT = 8000
+RELAY_PORT = 8001
 RELAY_IP = "127.0.0.1"
 BLOCKCHAIN_ENDPOINT = 'relay/blockchain'
 TRANSACTION_ENDPOINT = 'relay/transactions'

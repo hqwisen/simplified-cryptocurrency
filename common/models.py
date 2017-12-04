@@ -183,6 +183,8 @@ class Transaction:
     def serialize(transaction):
         transactionDict = dict()
         transactionDict['receiver'] = transaction.receiver
+        # TODO fix confusion between hash and get_hash, its weird to not send the hash
+        transactionDict['hash'] = transaction.hash
         transactionDict['amount'] = transaction.amount
         transactionDict['sender_public_key'] = transaction.sender_public_key.decode(ENCODING_UTF8)
         transactionDict['signature'] = base64.b64encode(transaction.signature)
@@ -242,6 +244,9 @@ class Transaction:
                           bytes(str(self.amount), ENCODING_UTF8) +
                           bytes(str(self.timestamp), ENCODING_UTF8) +
                           bytes(str(self.sender_public_key), ENCODING_UTF8))
+    @property
+    def hash(self):
+        return self.get_hash().hexdigest()
 
     def verify_signature(self):
         try:
