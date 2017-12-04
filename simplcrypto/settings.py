@@ -37,9 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'common.apps.CommonConfig',
-    'relay.apps.RelayConfig',
-    'master.apps.MasterConfig'
 ]
+
+MASTER_APP = 'master.apps.MasterConfig'
+RELAY_APP = 'relay.apps.RelayConfig'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -193,5 +194,13 @@ FIRST_ADDRESSES = ["3c9a4bff3857df19c1cd0f6cec16bebadf294b78", "60f65a9a5284d033
 # Filter MasterNode access with credentials
 RELAY_CREDENTIALS = {'username': 'relay', 'password': '12345'}
 
-
 GENESIS_BLOCK_FILE = os.path.join(BASE_DIR, 'master', 'genesisblock.json')
+
+##################
+# LOCAL SETTINGS #
+##################
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
