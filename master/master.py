@@ -19,8 +19,8 @@ class Master:
             self.balance = settings.MASTER_BALANCE
             self.wallet = Wallet()
             self.wallet.log_in(settings.MASTER_PASSWORD, settings.MASTER_LABEL, settings.MASTER_ADDRESS_DIRECTORY)
-            #self.hardcoded_genesis_block()
-            self.add_genesis_block()
+            self.hardcoded_genesis_block()
+            # self.add_genesis_block()
 
         def hardcoded_genesis_block(self):
             log.debug("Initializing genesis block (from file %s)" % settings.GENESIS_BLOCK_FILE)
@@ -51,8 +51,7 @@ class Master:
                     nonce += 1
             block.header = block_header
             block.nonce = nonce
-            with open("genesisblock_new.json", "w") as f:
-                f.write(str(Block.serialize(block)))
+
             self.add_block(block)
 
         def update_blockchain(self, block):

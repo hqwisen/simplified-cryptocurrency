@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 
 
 class BlockchainView(BlockchainGETView):
-    #authentication_classes = (RelayAuthentication,)
-    #permission_classes = (IsAuthenticated,)
+    authentication_classes = (RelayAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     @property
     def server(self):
@@ -26,8 +26,8 @@ class BlockchainView(BlockchainGETView):
 
 class BlockView(APIView):
     # FIXME Permission commented because need to add credentials in relay.views POST block
-    #authentication_classes = (RelayAuthentication,)
-    #permission_classes = (IsAuthenticated,)
+    authentication_classes = (RelayAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request):
         """

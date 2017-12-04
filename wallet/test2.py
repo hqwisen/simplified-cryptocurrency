@@ -8,7 +8,6 @@ from Crypto.PublicKey import DSA
 import requests
 from Crypto.Signature import DSS
 import ast
-import json
 
 
 
@@ -38,14 +37,13 @@ def main():
 
     # Have to add authentication or delete the authentication in the master node to test
     response = requests.get("http://localhost:8000/master/blockchain")
-    blockchain = Blockchain.parse(response.json())
+    blockchain = Blockchain.parse(ast.literal_eval(response.text))
     transactions_list = blockchain.blocks[0].transactions
     for transaction in transactions_list:
-        #print(transaction.sender_public_key)
+        print(transaction.sender_public_key)
         #print(transaction.hash.hexdigest())
         #print(transaction.signature)
-        #print(transaction.signature)
-        print(transaction.verify_signature())
+        verify_signature(transaction)
 
 
 
