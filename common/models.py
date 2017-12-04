@@ -39,8 +39,12 @@ class Blockchain:
             data['blocks'].append(Block.serialize(block))
         return data
 
-    def __init__(self, blocks=[]):
-        self.__blocks = blocks
+    def __init__(self, blocks=None):
+        # Note that we cannot set default value [], it will use the same object
+        if blocks is None:
+            self.__blocks = []
+        else:
+            self.__blocks = blocks
 
     def add_block(self, block):
         self.blocks.append(block)
