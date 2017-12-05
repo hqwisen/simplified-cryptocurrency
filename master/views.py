@@ -41,9 +41,9 @@ class BlockView(APIView):
         """
         try:
             # request contains the block, and the address of the miner
+            logger.debug("Block received from %s" % request.data['miner_address'])
             block_data = request.data['block']
             print(request.data)
-
             block = Block.parse(block_data)
         except KeyError:
             return Response({"errors": "No block given."},

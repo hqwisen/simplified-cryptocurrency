@@ -7,8 +7,8 @@
 
 
 import hashlib
-import sys
 import logging
+import sys
 
 log = logging.getLogger(__name__)
 logging.basicConfig(level=logging.ERROR)
@@ -16,12 +16,13 @@ logging.basicConfig(level=logging.ERROR)
 sys.path.append('..')
 
 from common.models import *
+from common.client import *
 import requests
 
 
 class Miner:
     # Static variable which represent the mining difficulty
-    DIFFICULTY = 5
+    DIFFICULTY = 3
     TX_PER_BLOCK = 5
 
     def __init__(self, address, ip, port):
@@ -85,7 +86,7 @@ class Miner:
             blockAndaddress = {'block': Block.serialize(newBlock),
                                'miner_address': self.address}
             print(blockAndaddress)
-            requests.post(self.url + "/relay/block", blockAndaddress)
+            post(self.url + "/relay", "block", blockAndaddress)
             self.printSendBlock()
 
     def printStartMining(self):

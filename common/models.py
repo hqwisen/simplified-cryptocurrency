@@ -176,7 +176,9 @@ class Transaction:
             transaction.receiver = data['receiver']
             transaction.amount = float(data['amount'])
             transaction.sender_public_key = data['sender_public_key'].encode(ENCODING_UTF8)
-            transaction.signature = base64.b64decode(data['signature'])
+            # Signature: convert string to base64 bytes to be decoded as binary data
+            # FIXME Since Base64 is ASCII, it is not better to use ASCII instead of UTF8
+            transaction.signature = base64.b64decode(data['signature'].encode(ENCODING_UTF8))
             transaction.timestamp = data['timestamp']
         except KeyError as e:
             raise ParseException("Attribute %s was not given "
@@ -191,7 +193,8 @@ class Transaction:
         transactionDict['hash'] = transaction.hash
         transactionDict['amount'] = transaction.amount
         transactionDict['sender_public_key'] = transaction.sender_public_key.decode(ENCODING_UTF8)
-        transactionDict['signature'] = base64.b64encode(transaction.signature)
+        # Signature is a string of base64 bytes
+        transactionDict['signature'] = base64.b64encode(transaction.signature).decode(ENCODING_UTF8)
         transactionDict['timestamp'] = transaction.timestamp
         return transactionDict
 

@@ -4,7 +4,11 @@ from requests.auth import HTTPBasicAuth
 
 class Response:
     def __init__(self, requests_response):
-        self.data = requests_response.json()
+
+        try:
+            self.data = requests_response.json()
+        except ValueError:
+            pass # No JSON given or incorrect one
         self.status = requests_response.status_code
 
 
