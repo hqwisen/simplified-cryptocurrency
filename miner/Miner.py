@@ -16,13 +16,12 @@ logging.basicConfig(level=logging.ERROR)
 sys.path.append('..')
 
 from common.models import *
-from common.client import *
-import requests
+from common import client
 
 
 class Miner:
     # Static variable which represent the mining difficulty
-    DIFFICULTY = 3
+    DIFFICULTY = 5
     TX_PER_BLOCK = 5
 
     def __init__(self, address, ip, port):
@@ -42,25 +41,25 @@ class Miner:
         """
         Requests the 5 transactions, verifies them and proofOfWork with given difficulty
         """
-
         while (True):
             excludes = list()
             balanceDic = dict()
-            responseBl = requests.get(self.url + "/relay/blockchain")
-            blockchain = Blockchain.parse(responseBl.json())
+            responseBl = client.get(self.url + "/relay","blockchain")
+            blockchain = Blockchain.parse(responseBl.data)
             self.printStartMining()
             while (len(self.transactions) < 5):
                 transactionsToExclude = {"exclude_hash": excludes}
-                responseTr = requests.get(self.url + "/relay/transactions",transactionsToExclude)
+                responseTr = client.get(self.url + "/relay","transactions",transactionsToExclude)
                 # If transaction is not empty ( None )
-                if (responseTr.status_code == 200):
-                    transaction = Transaction.parse(responseTr.json())
+                if (responseTr.status == 200):
+                    transaction = Transaction.parse(responseTr.data)
                     # VERIF SIGNATURE
                     if (transaction.verify_signature()):
                         balanceKeys = balanceDic.keys()
                         sender = Address.generate_address(transaction.sender_public_key)
                         receiver = transaction.receiver
                         amount = transaction.amount
+                        print(amount)
                         # VERIF BALANCE
                         if not (sender in balanceKeys):
                             balanceDic[sender] = blockchain.get_balance(sender)
@@ -85,9 +84,9 @@ class Miner:
             # Create JSON with format of acceptance by relay. We give the address to get paid if block is accepted
             blockAndaddress = {'block': Block.serialize(newBlock),
                                'miner_address': self.address}
-            print(blockAndaddress)
-            post(self.url + "/relay", "block", blockAndaddress)
+            client.post(self.url + "/relay", "block", blockAndaddress)
             self.printSendBlock()
+            self.transactions = []
 
     def printStartMining(self):
         print("##\n## Starting new block")

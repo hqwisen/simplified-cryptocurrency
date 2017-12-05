@@ -43,6 +43,8 @@ class BlockView(APIView):
         user = settings.RELAY_CREDENTIALS['username']
         pwd = settings.RELAY_CREDENTIALS['password']
         response = client.post(settings.MASTER_IP, 'block', request.data, basic_auth=(user, pwd))
+        # TODO DELETE BAD TRANSACTION
+        #
         # # # TODO should we send an anwser base on master node response ?
         # # # TODO Careful to not return sensitive info to miner
         # # # TODO it is not a good idea to return master response to miner
@@ -84,15 +86,16 @@ class TransactionView(APIView):
 
     def delete(self, request):
         """
-        Delete transactions receive in request.data['bad_transactions']
+        Delete transactions receive in request.data['transactions']
         This is usually done when masternode receive an incorrect block
         and reject some transaction.
+
         :param request:
         :return: 2OO (OK)
         """
         # TODO make sure that only masters can request deletes
         server = Relay()
-        for tx_data in request.data['bad_transactions']:
+        for tx_data in request.data['transactions']:
             try:
                 transaction = Transaction.parse(tx_data)
             except ParseException as e:

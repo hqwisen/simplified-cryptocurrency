@@ -43,7 +43,6 @@ class BlockView(APIView):
             # request contains the block, and the address of the miner
             logger.debug("Block received from %s" % request.data['miner_address'])
             block_data = request.data['block']
-            print(request.data)
             block = Block.parse(block_data)
         except KeyError:
             return Response({"errors": "No block given."},
@@ -52,29 +51,40 @@ class BlockView(APIView):
             return Response({"errors": "%s" % e},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
 
-        bad_transactions = self.server.update_blockchain(block)
-        if len(bad_transactions) == 0:  # block is valid
+        (hash_verify,bad_transactions) = self.server.update_blockchain(block)
+        if hash_verify and len(bad_transactions) == 0:  # block is valid
             logger.debug("Block '%s' successfully added" % block.header)
+            data = {'transactions': []}
+            for transaction in block.transactions:
+                data['transactions'].append(Transaction.serialize(transaction))
             for relay_ip in settings.RELAY_IP:
                 logger.debug("Sending block '%s' to relay %s" % (block.header, relay_ip))
                 client.post(relay_ip, 'block', block_data)
-            miner_transaction = self.server.wallet.create_transaction(request.data['miner_address'],settings.REWARD)
-            client.post(relay_ip, 'transactions', Transaction.serialize(miner_transaction))
+                client.delete(relay_ip,'transactions', data)
+            if self.server.balance >= settings.REWARD :
+                self.server.balance -= settings.REWARD
+                miner_transaction = self.server.wallet.create_transaction(request.data['miner_address'],settings.REWARD)
+                client.post(relay_ip, 'transactions', Transaction.serialize(miner_transaction))
             response = Response({"detail": "Block successfully added!"},
                                 status=status.HTTP_201_CREATED)
         else:
-            logger.debug("Block '%s' can NOT be added (bad TXs)." % block.header)
-            data = {'bad_transactions': []}
-            for transaction in bad_transactions:
-                logger.debug("Bad TX '%s'" % transaction.hash)
-                data['bad_transactions'].append(Transaction.serialize(transaction))
-            # Send to all relays bad TXs, since the miner can request
-            # transactions from any relay
-            for relay_ip in settings.RELAY_IP:
-                logger.debug("Sending bad TXs to relay %s" % relay_ip)
-                client.delete(relay_ip, 'transactions', data)
-            response = Response({"errors": "Bad transactions where found in new block.",
-                                 "data": data},
+            logger.debug("Block '%s' can NOT be added (bad header or bad TXs)." % block.header)
+            data = {'transactions': []}
+            if len(bad_transactions) > 0:
+                for transaction in bad_transactions:
+                    logger.debug("Bad TX '%s'" % transaction.hash)
+                    data['transactions'].append(Transaction.serialize(transaction))
+                # Send to all relays bad TXs, since the miner can request
+                # transactions from any relay
+                for relay_ip in settings.RELAY_IP:
+                    logger.debug("Sending bad TXs to relay %s" % relay_ip)
+                    client.delete(relay_ip, 'transactions', data)
+                    response = Response({"errors": "Bad transactions where found in new block.",
+                                    "data": data},
+                                    status=status.HTTP_406_NOT_ACCEPTABLE)
+            else:
+                response = Response({"errors": "Bad header.",
+                                "data": block_data},
                                 status=status.HTTP_406_NOT_ACCEPTABLE)
         return response
 

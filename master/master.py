@@ -64,9 +64,8 @@ class Master:
             results = self.verify_transactions(block)
             if hash_verify and len(results) == 0:
                 self.add_block(block)
-                return []
-            else:
-                return results
+
+            return (hash_verify,results)
 
         def verify_transactions(self, block):
             """

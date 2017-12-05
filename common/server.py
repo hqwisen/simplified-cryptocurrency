@@ -1,6 +1,8 @@
 from common.models import Blockchain
+from django.conf import settings
 
 import logging
+import hashlib
 
 logger = logging.getLogger(__name__)
 
@@ -30,13 +32,18 @@ class Server:
         Using the hashes of the last block, and the given block.
         It does NOT verify the transaction of the block.
         """
-        # TODO implement verify hash
-        return True
+        last_block = self.blockchain.last_block()
+        transactions_string = block.get_string_of_transactions()
+        hash_object = hashlib.sha256(str.encode(
+            last_block.header + transactions_string +
+            str(block.nonce)))
+        complete_hash = hash_object.hexdigest()
+        return complete_hash == block.header and block.header[:settings.DIFFICULTY] == "0" * settings.DIFFICULTY
 
     @property
     def blockchain(self):
         return self.__blockchain
-    
+
     @blockchain.setter
     def blockchain(self, blockchain):
         self.__blockchain = blockchain
