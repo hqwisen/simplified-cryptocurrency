@@ -47,12 +47,12 @@ class Miner:
         while (True):
             excludes = list()
             balanceDic = dict()
-            responseBl = client.get(self.url + "/relay","blockchain")
+            responseBl = client.get(self.url + "/relay", "blockchain")
             blockchain = Blockchain.parse(responseBl.data)
             self.printStartMining()
             while (len(self.transactions) < 5):
                 transactionsToExclude = {"exclude_hash": excludes}
-                responseTr = client.get(self.url + "/relay","transactions",transactionsToExclude)
+                responseTr = client.get(self.url + "/relay", "transactions", transactionsToExclude)
                 # If transaction is not empty ( None )
                 if (responseTr.status == 200):
                     transaction = Transaction.parse(responseTr.data)
@@ -100,7 +100,7 @@ class Miner:
     def printSendBlock(self):
         print("\t\t-> New block has been created and sent to Server")
 
-    def senderHasEnoughBalance(self,sender, amount, balanceDic):
+    def senderHasEnoughBalance(self, sender, amount, balanceDic):
         return balanceDic.get(sender) - amount >= 0
 
     def proofOfWork(self, lastBlockchainHash):
@@ -153,20 +153,44 @@ class Miner:
             block.add_transaction(transaction)
         return block
 
+def checkAddress(address):
+    """
+    Check if the address is a RIPEMD160 Hash.
+    If the address is not correct, the script is aborted.
+    The function only verify that the address is encoded
+    in hexadecimal and contains 160 bits.
+    :param address: address to be checked
+    """
+    try:
+        int(address, 16) # check if hex
+        if(len(address) * 4) != 160: raise ValueError("Address is not 160 bits.")
+    except ValueError as e:
+        print("Invalid address '%s'." % address)
+        print(e)
+        sys.exit(1)
+
+
+
 def printWelcome():
-    print("#" *25)
-    print("# Mining ULBCoin, Are you ready to be rich ?")
-    print("#" *25)
+    print("#" * 46)
+    print("# Mining ULBCoin, Are you ready to be rich ? #")
+    print("#" * 46)
+    print("Quit the miner with CONTROL-C.")
+
 
 def main():
     printWelcome()
-    # TODO Maybe check if address exists in the blockchain.
     with open(CONFIG_FILE, 'r') as f:
         config = json.load(f)
     address = config['address']
     ip, port = config['relay']['ip'], config['relay']['port']
+    checkAddress(address)
     miner = Miner(address, ip, port)
     miner.startMining()
 
+
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Mining stopped.")
