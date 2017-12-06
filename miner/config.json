@@ -1,0 +1,7 @@
+{
+  "address": "237479f422db84ca4908bbf1ad0f47680604537c",
+  "relay":{
+    "ip": "localhost",
+    "port": 8000
+  }
+}
