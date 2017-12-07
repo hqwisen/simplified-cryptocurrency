@@ -9,6 +9,7 @@ from wallet import Wallet, Transaction
 from .forms import LoginForm, MakeTransactionForm, CreateAddressForm
 from relay_channel import send_transaction
 
+INDEX = 'index'
 WRONG_PASSWORD_ERROR = 'Wrong password'
 TRANSACTION_TO_SELF_ERROR = 'Receiver and sender addresses must be different'
 TRANSACTION_ALREADY_ADDED = 'Transaction already added to next block'
@@ -29,10 +30,17 @@ def get_all_saved_addresses():
 wallet = Wallet()
 wallet.update_blockchain()
 
-@app.route('/refresh_blockchain')
-def refresh_blockchain() :
+@app.route('/explore_blockchain')
+def explore_blockchain():
+    print(type(wallet.blockchain.blocks[0].nonce))
+    return render_template('explore_blockchain.html', addresses=get_all_saved_addresses(),  exploring=True, blocks=wallet.blockchain.blocks)
+
+@app.route('/refresh_blockchain/<called_by>')
+def refresh_blockchain(called_by) :
     wallet.update_blockchain()
-    return index()
+    if called_by == INDEX:
+        return index()
+    return explore_blockchain()
 
 @app.route('/', methods=[GET, POST])
 @app.route('/index', methods=[GET, POST])

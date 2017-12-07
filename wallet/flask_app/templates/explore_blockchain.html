@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+  <main role="main" class="col-sm-8 ml-sm-auto col-md-8 pt-3">
+    <h1>Blockchain</h1>
+      <ul>
+        {% for block in blocks %}
+        <h3>Block number {{ loop.index }}</h3>
+          <ul>
+            <li> Header: {{ block.header }}</li>
+            <li> Nonce: {{ block.nonce }}</li>
+            <li> Transactions:
+            <table>
+              <tr>
+                <th>Receiver</th>
+                <th>Amount</th>
+                <th>Timestamp</th>
+              </tr>
+              {% for trans in block.transactions %}
+              <tr>
+                <td>{{ trans.receiver }}</td>
+                <td>{{ trans.amount }}</td>
+                <td>{{ trans.timestamp }}</td>
+              </tr>
+              {% endfor %}
+            </table>
+            </li>
+          </ul>
+        {% endfor %}
+      </ul>
+  </main>
+{% endblock %}
