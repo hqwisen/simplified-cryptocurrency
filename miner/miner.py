@@ -122,7 +122,8 @@ class Miner:
         self.reset_transaction()
 
     def start_mining(self):
-        while True:
+        mining = True
+        while mining:
             try:
                 self.inner_start_mining()
             except ConnectionError as e:

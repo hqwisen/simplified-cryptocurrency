@@ -45,13 +45,15 @@ class BlockView(APIView):
             block_data = request.data['block']
             block = Block.parse(block_data)
         except KeyError:
+            logger.debug("No block given.")
             return Response({"errors": "No block given."},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
         except ParseException as e:
+            logger.debug("Parsing block error.")
             return Response({"errors": "%s" % e},
                             status=status.HTTP_406_NOT_ACCEPTABLE)
 
-        (hash_verify,bad_transactions) = self.server.update_blockchain(block)
+        (hash_verify, bad_transactions) = self.server.update_blockchain(block)
         if hash_verify and len(bad_transactions) == 0:  # block is valid
             logger.debug("Block '%s' successfully added" % block.header)
             data = {'transactions': []}
@@ -59,11 +61,12 @@ class BlockView(APIView):
                 data['transactions'].append(Transaction.serialize(transaction))
             for relay_ip in settings.RELAY_IP:
                 logger.debug("Sending block '%s' to relay %s" % (block.header, relay_ip))
-                client.post(relay_ip, 'block', block_data)
-                client.delete(relay_ip,'transactions', data)
-            if self.server.balance >= settings.REWARD :
+                client.post(relay_ip, 'blockchain', block_data)
+                client.delete(relay_ip, 'transactions', data)
+            if self.server.balance >= settings.REWARD:
                 self.server.balance -= settings.REWARD
-                miner_transaction = self.server.wallet.create_transaction(request.data['miner_address'],settings.REWARD)
+                miner_transaction = self.server.wallet.create_transaction(request.data['miner_address'],
+                                                                          settings.REWARD)
                 client.post(relay_ip, 'transactions', Transaction.serialize(miner_transaction))
             response = Response({"detail": "Block successfully added!"},
                                 status=status.HTTP_201_CREATED)
@@ -80,12 +83,12 @@ class BlockView(APIView):
                     logger.debug("Sending bad TXs to relay %s" % relay_ip)
                     client.delete(relay_ip, 'transactions', data)
                     response = Response({"errors": "Bad transactions where found in new block.",
-                                    "data": data},
-                                    status=status.HTTP_406_NOT_ACCEPTABLE)
+                                         "data": data},
+                                        status=status.HTTP_406_NOT_ACCEPTABLE)
             else:
                 response = Response({"errors": "Bad header.",
-                                "data": block_data},
-                                status=status.HTTP_406_NOT_ACCEPTABLE)
+                                     "data": block_data},
+                                    status=status.HTTP_406_NOT_ACCEPTABLE)
         return response
 
     @property
