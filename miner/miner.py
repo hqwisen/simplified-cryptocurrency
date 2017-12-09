@@ -55,16 +55,15 @@ class Miner:
         :param excludes: TX hashes to be excluded on the request.
         :return: The transaction received if exist, otherwise None.
         """
-        print("Requesting new transaction to %s" % self.url, end =": ")
         response = client.get(self.url, "transactions", {"exclude_hash": excludes_list})
         if response.status == 200:
-            print("successfully received")
+            print("Transaction successfully received")
             return Transaction.parse(response.data)
         elif response.status == 404:
-            print("no request to be received")
+            # print("no request to be received")
             return None
         else:
-            print("unknown error")
+            print("Unknown error while requesting transaction")
             return None
 
     def add_transaction(self, transaction):
@@ -84,6 +83,7 @@ class Miner:
         :return: The TX_PER_BLOCK transactions.
         """
         excludes_list, balance_dict = list(), dict()
+        print("Requesting transactions to %s..." % self.url)
         while len(self.transactions) < Miner.TX_PER_BLOCK:
             transaction = self.get_transaction(excludes_list)
             if transaction and transaction.verify_signature():
