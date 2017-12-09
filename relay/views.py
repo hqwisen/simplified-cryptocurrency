@@ -43,14 +43,9 @@ class BlockView(APIView):
         user = settings.RELAY_CREDENTIALS['username']
         pwd = settings.RELAY_CREDENTIALS['password']
         response = client.post(settings.MASTER_IP, 'block', request.data, basic_auth=(user, pwd))
-        # TODO DELETE BAD TRANSACTION
-        #
-        # # # TODO should we send an anwser base on master node response ?
-        # # # TODO Careful to not return sensitive info to miner
-        # # # TODO it is not a good idea to return master response to miner
-        # # # TODO include Basic Relay Credentials in post request
-        # # # return Response("Successfully received", status=status.HTTP_200_OK)
+        # TODO what to return to miner ?
         return Response(status=status.HTTP_200_OK)
+
 
 class TransactionView(APIView):
     def get(self, request):

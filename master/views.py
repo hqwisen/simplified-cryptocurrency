@@ -25,7 +25,6 @@ class BlockchainView(BlockchainGETView):
 
 
 class BlockView(APIView):
-    # FIXME Permission commented because need to add credentials in relay.views POST block
     authentication_classes = (RelayAuthentication,)
     permission_classes = (IsAuthenticated,)
 
@@ -65,8 +64,9 @@ class BlockView(APIView):
                 client.delete(relay_ip, 'transactions', data)
             if self.server.balance >= settings.REWARD:
                 self.server.balance -= settings.REWARD
-                miner_transaction = self.server.wallet.create_transaction(request.data['miner_address'],
-                                                                          settings.REWARD)
+                miner_transaction = self.server.wallet.create_transaction(
+                    request.data['miner_address'],
+                    settings.REWARD)
                 client.post(relay_ip, 'transactions', Transaction.serialize(miner_transaction))
             response = Response({"detail": "Block successfully added!"},
                                 status=status.HTTP_201_CREATED)

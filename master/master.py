@@ -71,7 +71,6 @@ class Master:
             """
             Return a list of invalid transactions
             """
-            # TODO write tests method to verify this.
             bad_transactions = []
             senders_balance = dict()
             for transaction in block.transactions:

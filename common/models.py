@@ -169,15 +169,12 @@ class Block:
 class Transaction:
     @staticmethod
     def parse(data):
-        # TODO check that the parsing, consider the encoding of public_key and signature
-        # TODO check if there is a better way to impl the use of generate_hash on reception
         transaction = Transaction()
         try:
             transaction.receiver = data['receiver']
             transaction.amount = float(data['amount'])
             transaction.sender_public_key = data['sender_public_key'].encode(ENCODING_UTF8)
             # Signature: convert string to base64 bytes to be decoded as binary data
-            # FIXME Since Base64 is ASCII, it is not better to use ASCII instead of UTF8
             transaction.signature = base64.b64decode(data['signature'].encode(ENCODING_UTF8))
             transaction.timestamp = data['timestamp']
         except KeyError as e:
@@ -189,7 +186,6 @@ class Transaction:
     def serialize(transaction):
         transactionDict = dict()
         transactionDict['receiver'] = transaction.receiver
-        # TODO fix confusion between hash and get_hash, its weird to not send the hash
         transactionDict['hash'] = transaction.hash
         transactionDict['amount'] = transaction.amount
         transactionDict['sender_public_key'] = transaction.sender_public_key.decode(ENCODING_UTF8)

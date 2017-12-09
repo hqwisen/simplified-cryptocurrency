@@ -1,7 +1,7 @@
 from wallet import Wallet
 from relay_channel import send_transaction
 
-NTX = 5
+NTX = 20 
 
 if __name__ == "__main__":
     w = Wallet()

@@ -128,7 +128,7 @@ class Miner:
                 self.inner_start_mining()
             except ConnectionError as e:
                 # TODO maybe wait a few seconds before restarting the loop, instead of exit ?
-                print("Error: connection error occured while requesting '%s'" % self.url)
+                print("Error: connection error occurred while requesting '%s'" % self.url)
                 print(e)
                 sys.exit(1)
 
