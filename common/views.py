@@ -27,8 +27,8 @@ class ViewUtils:
             param = None
         return param
 
-class BlockchainGETView(APIView):
 
+class BlockchainGETView(APIView):
 
     def get(self, request):
         start = ViewUtils.parse_int_param(request.query_params, 'start')
@@ -39,5 +39,3 @@ class BlockchainGETView(APIView):
     @property
     def server(self):
         return None
-
-

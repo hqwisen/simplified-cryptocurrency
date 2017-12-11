@@ -95,7 +95,13 @@ class Blockchain:
         return len(self.blocks)
 
     def get_balance(self, address):
-        balance = 0
+        # hardcoded MasterAddress with initial balance
+        # used to reward and must be handle by the network!
+        # It is better to hardcode to avoid importing the settings client-side
+        if address == "eb9e8e484c623fffa46d52b06a0f2117f4c7b7ac":
+            balance = 100000
+        else:
+            balance = 0
         for block in self.blocks:
             for transaction in block.transactions:
                 if Address.generate_address(

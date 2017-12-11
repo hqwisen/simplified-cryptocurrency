@@ -179,6 +179,9 @@ MASTER_IP = "http://localhost:8000/master"
 
 RELAY_IP = ["http://localhost:8001/relay"]
 
+# NOTE IMPORTANT the master address and the master balance are hardcoded in the get_balance
+# to be able to reward the miners by creating a new transaction
+
 MASTER_ADDRESS_DIRECTORY = "master/addresses/"
 MASTER_LABEL = "MasterAddress"
 MASTER_PASSWORD = "MasterPassworddd"

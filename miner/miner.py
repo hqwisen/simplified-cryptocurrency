@@ -132,7 +132,6 @@ class Miner:
                 print(e)
                 sys.exit(1)
 
-
     def proof_of_work(self, last_block_hash):
         """
         Allow to verify the work of the miner.

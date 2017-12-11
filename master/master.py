@@ -18,7 +18,8 @@ class Master:
             super(Master.__Master, self).__init__()
             self.balance = settings.MASTER_BALANCE
             self.wallet = Wallet()
-            self.wallet.log_in(settings.MASTER_PASSWORD, settings.MASTER_LABEL, settings.MASTER_ADDRESS_DIRECTORY)
+            self.wallet.log_in(settings.MASTER_PASSWORD, settings.MASTER_LABEL,
+                               settings.MASTER_ADDRESS_DIRECTORY)
             self.hardcoded_genesis_block()
             # self.add_genesis_block()
 
@@ -34,7 +35,8 @@ class Master:
             block = Block()
             for i in range(5):  # create the first 5 transactions
                 destination_address = addresses[i % addresses_size]  # if there's less than 5
-                new_transaction = self.wallet.create_transaction(destination_address, settings.FIRST_BALANCE)
+                new_transaction = self.wallet.create_transaction(destination_address,
+                                                                 settings.FIRST_BALANCE)
 
                 block.add_transaction(new_transaction)
 
@@ -43,7 +45,8 @@ class Master:
             found = False
             while not found:  # hashing
                 hash_object = hashlib.sha256(
-                    str.encode(transactions_string + str(nonce)))  # b allows to concert string to binary
+                    str.encode(
+                        transactions_string + str(nonce)))  # b allows to concert string to binary
                 block_header = hash_object.hexdigest()
                 if block_header[:settings.DIFFICULTY] == "0" * settings.DIFFICULTY:
                     found = True
@@ -65,7 +68,7 @@ class Master:
             if hash_verify and len(results) == 0:
                 self.add_block(block)
 
-            return (hash_verify,results)
+            return (hash_verify, results)
 
         def verify_transactions(self, block):
             """
@@ -77,11 +80,13 @@ class Master:
                 if transaction.verify_signature():
                     sender_address = Address.generate_address(transaction.sender_public_key)
                     if sender_address not in senders_balance:
-                        senders_balance[sender_address] = self.blockchain.get_balance(sender_address)
+                        senders_balance[sender_address] = self.blockchain.get_balance(
+                            sender_address)
                     if senders_balance[sender_address] >= transaction.amount:
                         senders_balance[sender_address] -= transaction.amount
                         if transaction.receiver not in senders_balance:
-                            senders_balance[transaction.receiver] = self.blockchain.get_balance(transaction.receiver)
+                            senders_balance[transaction.receiver] = self.blockchain.get_balance(
+                                transaction.receiver)
                         senders_balance[transaction.receiver] += transaction.amount
                     else:
                         bad_transactions.append(transaction)
