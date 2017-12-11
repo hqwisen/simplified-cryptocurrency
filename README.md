@@ -9,6 +9,12 @@ Project for the Introduction to cryptography's course: A simplified cryptocurren
 
 To run the different components first setup a virtualenv and install the requirements.
 
+To install virtualenv (on Ubuntu):
+
+```bash
+sudo apt install virtualenv
+```
+
 
 Create a new virtualenv crypto.
 
@@ -17,11 +23,13 @@ Create a new virtualenv crypto.
 virtualenv .venv/crypto
 ```
 
-Activate the venv
+Activate the virtualenv
 
 ```bash
 source .venv/crypto/bin/activate
 ```
+
+Install the packages requirements
 
 ```
 pip install -r requirements.txt
