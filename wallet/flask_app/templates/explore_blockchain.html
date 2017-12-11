@@ -12,12 +12,14 @@
             <table>
               <tr>
                 <th>Receiver</th>
+                <th>Sender</th>
                 <th>Amount</th>
                 <th>Timestamp</th>
               </tr>
               {% for trans in block.transactions %}
               <tr>
                 <td>{{ trans.receiver }}</td>
+                <td>{{ trans.sender_address }}</td>
                 <td>{{ trans.amount }}</td>
                 <td>{{ trans.timestamp }}</td>
               </tr>

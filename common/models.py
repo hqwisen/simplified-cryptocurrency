@@ -236,6 +236,10 @@ class Transaction:
     def sender_public_key(self):
         return self.__sender_public_key
 
+    @property
+    def sender_address(self):
+        return Address.generate_address(self.sender_public_key)
+
     @sender_public_key.setter
     def sender_public_key(self, sender_public_key):
         self.__sender_public_key = sender_public_key
