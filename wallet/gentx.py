@@ -1,7 +1,7 @@
 from wallet import Wallet
 from relay_channel import send_transaction
 
-NTX = 20 
+NTX = 1 
 
 if __name__ == "__main__":
     w = Wallet()
@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     for i in range(NTX):
         print("Creating TX %d" % i)
-        tx = w.create_transaction("237479f422db84ca4908bbf1ad0f47680604537c", 11)
+        tx = w.create_transaction("237479f422db84ca4908bbf1ad0f47680604537c", 13)
         send_transaction(tx)
         print(tx.sender_public_key)
         print()
