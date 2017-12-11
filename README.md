@@ -72,6 +72,8 @@ cd wallet
 python wallet-webapp.py
 ```
 
+The created/used addresses are store in the directory `addresses/`
+
 # Start a miner
 
 The miner is a command line application using a config file.
