@@ -86,18 +86,19 @@ class Miner:
         print("Requesting transactions to %s..." % self.url)
         while len(self.transactions) < Miner.TX_PER_BLOCK:
             transaction = self.get_transaction(excludes_list)
-            if transaction and transaction.verify_signature():
-                balance_keys = balance_dict.keys()
-                sender = Address.generate_address(transaction.sender_public_key)
-                receiver, amount = transaction.receiver, transaction.amount
-                if not (sender in balance_keys):
-                    balance_dict[sender] = blockchain.get_balance(sender)
-                if not (receiver in balance_keys):
-                    balance_dict[receiver] = blockchain.get_balance(receiver)
-                if self.sender_has_enough_balance(sender, amount, balance_dict):
-                    balance_dict[sender] -= transaction.amount
-                    balance_dict[receiver] += transaction.amount
-                    self.add_transaction(transaction)
+            if transaction:
+                if transaction.verify_signature():
+                    balance_keys = balance_dict.keys()
+                    sender = Address.generate_address(transaction.sender_public_key)
+                    receiver, amount = transaction.receiver, transaction.amount
+                    if not (sender in balance_keys):
+                        balance_dict[sender] = blockchain.get_balance(sender)
+                    if not (receiver in balance_keys):
+                        balance_dict[receiver] = blockchain.get_balance(receiver)
+                    if self.sender_has_enough_balance(sender, amount, balance_dict):
+                        balance_dict[sender] -= transaction.amount
+                        balance_dict[receiver] += transaction.amount
+                        self.add_transaction(transaction)
                 excludes_list.append(transaction.hash)
         print("Received %s transactions" % Miner.TX_PER_BLOCK)
 
